@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UltrasTec — Core Platform</title>
+  <style>
+    :root {
+      --bg: #050507;
+      --card-bg: #090a0f;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f3f4f6;
+      --text-muted: #8e8e93;
+      --accent-cyan: #38bdf8;
+      --accent-green: #22c55e;
+      --mono: monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+    /* SIDEBAR */
+    sidebar {
+      width: 240px;
+      background: #000000;
+      border-right: 1px solid var(--card-border);
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.1em;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .brand-icon { width: 14px; height: 14px; border: 2px solid #fff; border-radius: 3px; }
+
+    .nav-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 10px 12px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-item.active .nav-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .sidebar-footer {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--card-border);
+      padding-top: 16px;
+      line-height: 1.4;
+    }
+
+    /* MAIN CONTENT */
+    main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    topbar {
+      height: 60px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      background: #050507;
+      flex-shrink: 0;
+    }
+
+    .status-indicator { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); font-weight: 600; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+
+    .content-area { padding: 40px; overflow-y: auto; flex: 1; }
+
+    .page-view { display: none; }
+    .page-view.active { display: block; }
+
+    /* LANDING PAGE STYLING */
+    .hero-tag { font-family: var(--mono); font-size: 11px; color: var(--accent-cyan); letter-spacing: 0.15em; text-align: center; margin-bottom: 16px; }
+    .hero-heading { font-size: 42px; font-weight: 800; text-align: center; line-height: 1.15; margin-bottom: 16px; }
+    .hero-sub { color: var(--text-muted); font-size: 14px; text-align: center; max-width: 520px; margin: 0 auto 32px auto; line-height: 1.5; }
+    
+    .btn-explore {
+      display: block;
+      margin: 0 auto 48px auto;
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 1000px; margin: 0 auto; }
+    .feature-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 20px; }
+    .feature-card h3 { font-size: 14px; margin-bottom: 8px; }
+    .feature-card p { color: var(--text-muted); font-size: 12px; line-height: 1.5; }
+
+    /* PRODUCT CATALOG 3x6 GRID */
+    .catalog-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 24px;
+    }
+
+    .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    .product-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .product-card:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .product-card img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.35;
+      transition: opacity 0.2s ease;
+    }
+
+    .product-card:hover img {
+      opacity: 0.55;
+    }
+
+    .card-info { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+    .card-id { font-family: var(--mono); font-size: 10px; color: var(--accent-cyan); }
+    .card-title { font-size: 13px; font-weight: 600; color: #fff; }
+    .card-price { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+
+    /* MODAL OVERLAY */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 480px;
+      padding: 24px;
+      position: relative;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .modal-close:hover { color: #fff; }
+
+    .modal-id { font-family: var(--mono); font-size: 11px; color: var(--accent-cyan); margin-bottom: 8px; }
+    .modal-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .modal-price { font-family: var(--mono); font-size: 14px; color: var(--accent-green); margin-bottom: 16px; }
+    .modal-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; border-top: 1px solid var(--card-border); padding-top: 16px; }
+
+    /* TERMS PAGE */
+    .terms-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 24px; font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+    .terms-box h3 { color: #fff; font-size: 15px; margin: 16px 0 6px 0; }
+    .terms-box h3:first-child { margin-top: 0; }
+  </style>
+</head>
+<body>
+
+  <sidebar>
+    <div>
+      <div class="brand"><div class="brand-icon"></div> ULTRASTEC</div>
+      <ul class="nav-list">
+        <li class="nav-item active" id="nav-landing">
+          <button class="nav-btn" onclick="switchTab('landing')">🏠 Landing Page</button>
+        </li>
+        <li class="nav-item" id="nav-catalog">
+          <button class="nav-btn" onclick="switchTab('catalog')">🌐 Product Catalog</button>
+        </li>
+        <li class="nav-item" id="nav-terms">
+          <button class="nav-btn" onclick="switchTab('terms')">📜 Terms & Conditions</button>
+        </li>
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      NODE: UT-PUBLIC-01<br>CORE PLATFORM V2.4
+    </div>
+  </sidebar>
+
+  <main>
+    <topbar>
+      <div class="status-indicator">
+        <span class="dot"></span>
+        <span>SYSTEM STATUS: ONLINE</span>
+      </div>
+    </topbar>
+
+    <div class="content-area">
+      
+      <!-- LANDING PAGE -->
+      <div class="page-view active" id="view-landing">
+        <div class="hero-tag">AUTONOMOUS FIELD SYSTEMS — 01</div>
+        <h1 class="hero-heading">Robots that move<br>the world forward.</h1>
+        <p class="hero-sub">UltrasTec designs autonomous machines for field tasks requiring sub-millisecond precision.</p>
+        <button class="btn-explore" onclick="switchTab('catalog')">Explore Product Catalog →</button>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h3>Adaptive Perception</h3>
+            <p>Multi-modal sensor arrays for real-time terrain navigation.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Deterministic Kinematics</h3>
+            <p>High-precision actuators engineered for heavy payloads.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Edge Autonomy</h3>
+            <p>Onboard decision compute that operates seamlessly offline.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCT CATALOG -->
+      <div class="page-view" id="view-catalog">
+        <div class="hero-tag">AUTONOMOUS FIELD SYSTEMS — 01</div>
+        <h1 class="hero-heading" style="margin-bottom: 12px;">Systems for every frontier.</h1>
+        <p class="hero-sub">A complete range of autonomous platforms re-engineered for precision, endurance, and a changing physical world.</p>
+
+        <div class="catalog-bar">
+          <span>ALL SYSTEMS</span>
+          <span id="product-count-label">18 PRODUCTS</span>
+        </div>
+
+        <div class="product-grid" id="product-grid">
+          <!-- Dynamic 3x6 grid populated via LocalStorage -->
+        </div>
+      </div>
+
+      <!-- TERMS & CONDITIONS -->
+      <div class="page-view" id="view-terms">
+        <h1 style="font-size: 24px; margin-bottom: 8px;">Terms & Conditions</h1>
+        <div class="hero-tag" style="text-align: left; margin-bottom: 24px;">DEPLOYMENT COMPLIANCE & GOVERNANCE</div>
+
+        <div class="terms-box">
+          <h3>01. Acceptance of Operations</h3>
+          <p>By accessing or issuing commands through the platform, you agree to adhere to all safety protocols and automated equipment compliance standards.</p>
+
+          <h3>02. Telemetry Channels</h3>
+          <p>All telemetry feedback logs are routed through secure channels. System state synchronizes directly across local node deployments.</p>
+
+          <h3>03. Software Modifications</h3>
+          <p>Tampering with remote command parameters or local storage registries (`ultrastec_fleet_data`) invalidates hardware compliance support.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- PRODUCT DETAILS MODAL -->
+  <div class="modal-overlay" id="product-modal" onclick="closeModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-id" id="modal-id">SYS-00</div>
+      <div class="modal-title" id="modal-title">System Unit</div>
+      <div class="modal-price" id="modal-price">$0 USD</div>
+      <div class="modal-desc" id="modal-desc">Not configured</div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'ultrastec_fleet_data';
+
+    function switchTab(tab) {
+      document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+      document.getElementById(`view-${tab}`).classList.add('active');
+      document.getElementById(`nav-${tab}`).classList.add('active');
+    }
+
+    function getProducts() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : [];
+    }
+
+    function openModal(prod, index) {
+      document.getElementById('modal-id').innerText = prod ? (prod.id || `SYS-0${index + 1}`) : `SYS-0${index + 1}`;
+      document.getElementById('modal-title').innerText = prod ? (prod.name || 'Custom Unit') : 'Empty Slot';
+      document.getElementById('modal-price').innerText = prod ? (prod.price || 'Contact Sales') : 'N/A';
+      document.getElementById('modal-desc').innerText = prod ? (prod.description || prod.desc || 'Not configured') : 'Not configured';
+      
+      document.getElementById('product-modal').classList.add('active');
+    }
+
+    function closeModal(e) {
+      document.getElementById('product-modal').classList.remove('active');
+    }
+
+    function renderCatalog() {
+      const storedProducts = getProducts();
+      const grid = document.getElementById('product-grid');
+      const countLabel = document.getElementById('product-count-label');
+      
+      const totalCards = 18;
+      if (countLabel) countLabel.innerText = `${totalCards} PRODUCTS`;
+
+      let html = '';
+      for (let i = 0; i < totalCards; i++) {
+        const prod = storedProducts[i];
+
+        if (prod) {
+          html += `
+            <div class="product-card" onclick='openModal(${JSON.stringify(prod).replace(/'/g, "&apos;")}, ${i})'>
+              <img src="${prod.img}" alt="${prod.name}" onerror="this.style.display='none'">
+              <div class="card-info">
+                <span class="card-id">${prod.id || `SYS-0${i + 1}`}</span>
+                <div>
+                  <div class="card-title">${prod.name}</div>
+                  <div class="card-price">${prod.price}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="product-card" onclick='openModal(null, ${i})'>
+              <div class="card-info">
+                <span class="card-id">SYS-0${i + 1}</span>
+                <div>
+                  <div class="card-title" style="opacity: 0.3;">Empty Slot</div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      grid.innerHTML = html;
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORAGE_KEY) renderCatalog();
+    });
+
+    renderCatalog();
+  </script>
+</body>
+</html>
