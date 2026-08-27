@@ -19,57 +19,33 @@
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     html, body { width: 100%; min-height: 100vh; background-color: var(--bg); color: var(--text-main); }
     
-    /* MOBILE MODE (DEFAULT): TOP-TO-BOTTOM STACK */
-    body {
-      display: flex;
-      flex-direction: column;
+    body { display: flex; flex-direction: column; width: 100%; }
+    .desktop-sidebar { display: none; }
+
+    .mobile-nav-container {
+      width: 100%;
+      background: #000000;
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
     }
 
-    /* TOP BAR (MOBILE) */
-    topbar {
+    .topbar {
       height: 48px;
       border-bottom: 1px solid var(--card-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 16px;
-      background: #050507;
-      width: 100%;
     }
 
     .mobile-brand { font-weight: 700; font-size: 13px; letter-spacing: 0.1em; color: #fff; }
     .status-indicator { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); font-weight: 600; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
 
-    /* MOBILE NAVIGATION BAR (MOVED TO TOP) */
-    .sidebar {
-      width: 100%;
-      background: #000000;
-      border-bottom: 1px solid var(--card-border);
-      padding: 8px 10px;
-    }
-
-    .brand {
-      font-weight: 700;
-      font-size: 15px;
-      letter-spacing: 0.1em;
-      color: #fff;
-      display: none;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .brand-icon { width: 14px; height: 14px; border: 2px solid #fff; border-radius: 3px; }
-
-    .nav-list {
-      list-style: none;
-      display: flex;
-      flex-direction: row;
-      width: 100%;
-      gap: 4px;
-      justify-content: space-between;
-    }
-
+    .mobile-menu { padding: 8px 10px; }
+    .nav-list { list-style: none; display: flex; flex-direction: row; width: 100%; gap: 4px; justify-content: space-between; }
     .nav-item { flex: 1; min-width: 0; }
 
     .nav-btn {
@@ -96,25 +72,13 @@
       border-color: rgba(255, 255, 255, 0.1);
     }
 
-    .sidebar-footer {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text-muted);
-      border-top: 1px solid var(--card-border);
-      padding-top: 16px;
-      line-height: 1.4;
-      display: none;
-    }
-
-    /* CONTENT AREA */
     main { flex: 1; width: 100%; }
-    .content-area { padding: 20px 16px; }
-
+    .content-area { padding: 24px 16px; width: 100%; }
     .page-view { display: none; }
     .page-view.active { display: block; }
 
     .hero-tag { font-family: var(--mono); font-size: 11px; color: var(--accent-cyan); letter-spacing: 0.15em; text-align: center; margin-bottom: 16px; }
-    .hero-heading { font-size: 24px; font-weight: 800; text-align: center; line-height: 1.2; margin-bottom: 16px; }
+    .hero-heading { font-size: 26px; font-weight: 800; text-align: center; line-height: 1.2; margin-bottom: 16px; }
     .hero-sub { color: var(--text-muted); font-size: 13px; text-align: center; max-width: 520px; margin: 0 auto 28px auto; line-height: 1.5; }
     
     .btn-explore {
@@ -177,7 +141,6 @@
     .card-title { font-size: 12px; font-weight: 600; color: #fff; margin-top: 4px; }
     .card-price { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 2px; }
 
-    /* MODAL OVERLAY */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -225,35 +188,25 @@
     .terms-box h3 { color: #fff; font-size: 14px; margin: 14px 0 4px 0; }
     .terms-box h3:first-child { margin-top: 0; }
 
-    /* DESKTOP MODE SWITCH (SCREEN WIDTH >= 769px) */
     @media (min-width: 769px) {
       body { flex-direction: row; min-height: 100vh; }
-
-      .sidebar {
+      .mobile-nav-container { display: none; }
+      .desktop-sidebar {
+        display: flex;
         width: 240px;
         min-height: 100vh;
         border-right: 1px solid var(--card-border);
-        border-bottom: none;
         padding: 24px 16px;
-        display: flex;
         flex-direction: column;
         justify-content: space-between;
+        background: #000000;
+        flex-shrink: 0;
       }
-
-      .brand { display: flex; }
-      .mobile-brand { display: none; }
-
-      .nav-list { flex-direction: column; gap: 6px; }
-
-      .nav-btn {
-        width: 100%;
-        padding: 10px 12px;
-        font-size: 12px;
-        justify-content: flex-start;
-      }
-
-      .sidebar-footer { display: block; }
-      topbar { height: 60px; padding: 0 24px; }
+      .brand { font-weight: 700; font-size: 15px; letter-spacing: 0.1em; color: #fff; display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
+      .brand-icon { width: 14px; height: 14px; border: 2px solid #fff; border-radius: 3px; }
+      .desktop-sidebar .nav-list { flex-direction: column; gap: 6px; }
+      .desktop-sidebar .nav-btn { width: 100%; padding: 10px 12px; font-size: 12px; justify-content: flex-start; }
+      .sidebar-footer { font-family: var(--mono); font-size: 10px; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 16px; line-height: 1.4; }
       .content-area { padding: 40px; }
       .hero-heading { font-size: 40px; }
       .feature-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -263,17 +216,42 @@
 </head>
 <body>
 
-  <aside class="sidebar">
+  <!-- MOBILE NAVIGATION -->
+  <div class="mobile-nav-container">
+    <div class="topbar">
+      <div class="mobile-brand">ULTRASTEC</div>
+      <div class="status-indicator">
+        <span class="dot"></span>
+        <span>SYSTEM STATUS: ONLINE</span>
+      </div>
+    </div>
+    <div class="mobile-menu">
+      <ul class="nav-list">
+        <li class="nav-item active m-nav-landing">
+          <button class="nav-btn" onclick="switchTab('landing')">🏠 <span>Landing Page</span></button>
+        </li>
+        <li class="nav-item m-nav-catalog">
+          <button class="nav-btn" onclick="switchTab('catalog')">🌐 <span>Product Catalog</span></button>
+        </li>
+        <li class="nav-item m-nav-terms">
+          <button class="nav-btn" onclick="switchTab('terms')">📜 <span>Terms & Conditions</span></button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- DESKTOP SIDEBAR -->
+  <aside class="desktop-sidebar">
     <div>
       <div class="brand"><div class="brand-icon"></div> ULTRASTEC</div>
       <ul class="nav-list">
-        <li class="nav-item active" id="nav-landing">
+        <li class="nav-item active d-nav-landing">
           <button class="nav-btn" onclick="switchTab('landing')">🏠 <span>Landing Page</span></button>
         </li>
-        <li class="nav-item" id="nav-catalog">
+        <li class="nav-item d-nav-catalog">
           <button class="nav-btn" onclick="switchTab('catalog')">🌐 <span>Product Catalog</span></button>
         </li>
-        <li class="nav-item" id="nav-terms">
+        <li class="nav-item d-nav-terms">
           <button class="nav-btn" onclick="switchTab('terms')">📜 <span>Terms & Conditions</span></button>
         </li>
       </ul>
@@ -283,16 +261,11 @@
     </div>
   </aside>
 
+  <!-- MAIN VIEW -->
   <main>
-    <topbar>
-      <div class="mobile-brand">ULTRASTEC</div>
-      <div class="status-indicator">
-        <span class="dot"></span>
-        <span>SYSTEM STATUS: ONLINE</span>
-      </div>
-    </topbar>
-
     <div class="content-area">
+      
+      <!-- LANDING PAGE VIEW -->
       <div class="page-view active" id="view-landing">
         <div class="hero-tag">AUTONOMOUS FIELD SYSTEMS — 01</div>
         <h1 class="hero-heading">Robots that move<br>the world forward.</h1>
@@ -315,6 +288,7 @@
         </div>
       </div>
 
+      <!-- CATALOG VIEW -->
       <div class="page-view" id="view-catalog">
         <div class="hero-tag">AUTONOMOUS FIELD SYSTEMS — 01</div>
         <h1 class="hero-heading" style="margin-bottom: 12px;">Systems for every frontier.</h1>
@@ -322,12 +296,13 @@
 
         <div class="catalog-bar">
           <span>ALL SYSTEMS</span>
-          <span id="product-count-label">0 ACTIVE PRODUCTS</span>
+          <span id="product-count-label">LOADING...</span>
         </div>
 
         <div class="product-grid" id="product-grid"></div>
       </div>
 
+      <!-- TERMS VIEW -->
       <div class="page-view" id="view-terms">
         <h1 style="font-size: 22px; margin-bottom: 6px;">Terms & Conditions</h1>
         <div class="hero-tag" style="text-align: left; margin-bottom: 20px;">DEPLOYMENT COMPLIANCE & GOVERNANCE</div>
@@ -336,14 +311,16 @@
           <h3>01. Acceptance of Operations</h3>
           <p>By accessing or issuing commands through the platform, you agree to adhere to all safety protocols and automated equipment compliance standards.</p>
           <h3>02. Telemetry Channels</h3>
-          <p>All telemetry feedback logs are routed through secure channels. System state synchronizes directly across local node deployments.</p>
+          <p>All telemetry feedback logs are routed through secure channels. System state synchronizes directly across cloud nodes.</p>
           <h3>03. Software Modifications</h3>
-          <p>Tampering with remote command parameters or local storage registries (`ultrastec_fleet_data`) invalidates hardware compliance support.</p>
+          <p>Tampering with remote command parameters or cluster databases invalidates hardware compliance support.</p>
         </div>
       </div>
+
     </div>
   </main>
 
+  <!-- PRODUCT MODAL -->
   <div class="modal-overlay" id="product-modal" onclick="closeModal()">
     <div class="modal-card" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal()">✕</button>
@@ -357,39 +334,44 @@
     </div>
   </div>
 
-  <script>
-    const STORAGE_KEY = 'ultrastec_fleet_data';
+  <!-- FIREBASE DATABASE INTEGRATION -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    function switchTab(tab) {
+    // PASTE YOUR FIREBASE CONFIG KEYS HERE BELOW:
+    const firebaseConfig = {
+      apiKey: "YOUR_FIREBASE_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.switchTab = function(tab) {
       document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
       document.getElementById(`view-${tab}`).classList.add('active');
-      document.getElementById(`nav-${tab}`).classList.add('active');
-    }
+      document.querySelectorAll(`.m-nav-${tab}, .d-nav-${tab}`).forEach(el => el.classList.add('active'));
+    };
 
-    function getProducts() {
-      try {
-        const data = localStorage.getItem(STORAGE_KEY);
-        return data ? JSON.parse(data) : [];
-      } catch (e) {
-        return [];
-      }
-    }
-
-    function openModal(prod, index) {
+    window.openModal = function(prod, index) {
       const modalId = document.getElementById('modal-id');
       const modalTitle = document.getElementById('modal-title');
       const modalPrice = document.getElementById('modal-price');
       const modalCurrency = document.getElementById('modal-currency');
       const modalDesc = document.getElementById('modal-desc');
 
-      if (prod && (prod.name || prod.price || prod.description || prod.desc)) {
-        modalId.innerText = prod.id || `SYS-0${index + 1}`;
-        modalTitle.innerText = prod.name || 'Not configured';
+      if (prod && prod.name) {
+        modalId.innerText = `SYS-0${index + 1}`;
+        modalTitle.innerText = prod.name;
         modalPrice.innerText = prod.price || 'Not configured';
-        modalCurrency.innerText = prod.currency || 'USD';
-        modalDesc.innerText = prod.description || prod.desc || 'Not configured';
+        modalCurrency.innerText = 'USD';
+        modalDesc.innerText = prod.description || 'Not configured';
       } else {
         modalId.innerText = `SYS-0${index + 1}`;
         modalTitle.innerText = 'Not configured';
@@ -399,14 +381,15 @@
       }
       
       document.getElementById('product-modal').classList.add('active');
-    }
+    };
 
-    function closeModal() {
+    window.closeModal = function() {
       document.getElementById('product-modal').classList.remove('active');
-    }
+    };
 
-    function renderCatalog() {
-      const storedProducts = getProducts();
+    // REAL-TIME CLOUD LISTENER (SYNC FOR EVERY USER)
+    onSnapshot(collection(db, "products"), (snapshot) => {
+      const storedProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       const grid = document.getElementById('product-grid');
       const countLabel = document.getElementById('product-count-label');
       
@@ -419,12 +402,12 @@
         if (prod) {
           html += `
             <div class="product-card" onclick='openModal(${JSON.stringify(prod).replace(/'/g, "&apos;")}, ${i})'>
-              ${prod.img ? `<img src="${prod.img}" alt="${prod.name || ''}">` : ''}
+              ${prod.img ? `<img src="${prod.img}" alt="${prod.name}">` : ''}
               <div class="card-info">
-                <span class="card-id">${prod.id || `SYS-0${i + 1}`}</span>
+                <span class="card-id">SYS-0${i + 1}</span>
                 <div>
-                  <div class="card-title">${prod.name || 'Not configured'}</div>
-                  <div class="card-price">${prod.price || 'Not configured'}</div>
+                  <div class="card-title">${prod.name}</div>
+                  <div class="card-price">${prod.price}</div>
                 </div>
               </div>
             </div>
@@ -444,13 +427,7 @@
         }
       }
       if (grid) grid.innerHTML = html;
-    }
-
-    window.addEventListener('storage', (e) => {
-      if (e.key === STORAGE_KEY) renderCatalog();
     });
-
-    renderCatalog();
   </script>
 </body>
 </html>
