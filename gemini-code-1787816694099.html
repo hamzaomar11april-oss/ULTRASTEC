@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>UltrasTec — Core Platform</title>
+  <link rel="icon" type="image/png" href="images.png">
+  <style>
+    :root {
+      --bg: #050507;
+      --card-bg: #090a0f;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f3f4f6;
+      --text-muted: #8e8e93;
+      --accent-cyan: #38bdf8;
+      --accent-green: #22c55e;
+      --mono: monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background-color: var(--bg); color: var(--text-main); }
+    
+    /* BASE LAYOUT: MOBILE MODE (Top-to-Bottom Flow) */
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+    }
+
+    /* TOP BAR (MOBILE) */
+    topbar {
+      height: 48px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: #050507;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+
+    .mobile-brand { display: flex; font-weight: 700; font-size: 13px; letter-spacing: 0.1em; color: #fff; }
+    .status-indicator { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); font-weight: 600; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+
+    /* NAVIGATION BAR (MOBILE MODE: TOP PANEL) */
+    .sidebar {
+      width: 100%;
+      background: #000000;
+      border-bottom: 1px solid var(--card-border);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.1em;
+      color: #fff;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .brand-icon { width: 14px; height: 14px; border: 2px solid #fff; border-radius: 3px; }
+
+    .nav-wrapper { width: 100%; }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      gap: 4px;
+      justify-content: space-between;
+    }
+
+    .nav-item { flex: 1; min-width: 0; }
+
+    .nav-btn {
+      width: 100%;
+      text-align: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 8px 4px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .nav-item.active .nav-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-footer {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--card-border);
+      padding-top: 16px;
+      line-height: 1.4;
+      display: none;
+    }
+
+    /* MAIN CONTENT VIEW */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .content-area { padding: 20px 16px; overflow-y: auto; flex: 1; min-width: 0; }
+
+    .page-view { display: none; }
+    .page-view.active { display: block; }
+
+    .hero-tag { font-family: var(--mono); font-size: 11px; color: var(--accent-cyan); letter-spacing: 0.15em; text-align: center; margin-bottom: 16px; }
+    .hero-heading { font-size: 24px; font-weight: 800; text-align: center; line-height: 1.2; margin-bottom: 16px; }
+    .hero-sub { color: var(--text-muted); font-size: 13px; text-align: center; max-width: 520px; margin: 0 auto 28px auto; line-height: 1.5; }
+    
+    .btn-explore {
+      display: block;
+      margin: 0 auto 32px auto;
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .feature-grid { display: grid; grid-template-columns: 1fr; gap: 12px; max-width: 1000px; margin: 0 auto; }
+    .feature-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 16px; }
+    .feature-card h3 { font-size: 14px; margin-bottom: 6px; }
+    .feature-card p { color: var(--text-muted); font-size: 12px; line-height: 1.5; }
+
+    .catalog-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 20px;
+    }
+
+    .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+    .product-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .product-card img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.35;
+    }
+
+    .card-info { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+    .card-id { font-family: var(--mono); font-size: 10px; color: var(--accent-cyan); }
+    .card-title { font-size: 12px; font-weight: 600; color: #fff; margin-top: 4px; }
+    .card-price { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+    /* MODAL OVERLAY */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      padding: 16px;
+    }
+
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+    .modal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 440px;
+      padding: 20px;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .modal-id { font-family: var(--mono); font-size: 11px; color: var(--accent-cyan); margin-bottom: 6px; }
+    .modal-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .modal-price-row { display: flex; gap: 6px; font-family: var(--mono); font-size: 13px; color: var(--accent-green); margin-bottom: 14px; }
+    .modal-currency { font-size: 10px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+    .modal-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; border-top: 1px solid var(--card-border); padding-top: 14px; }
+
+    .terms-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 20px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+    .terms-box h3 { color: #fff; font-size: 14px; margin: 14px 0 4px 0; }
+    .terms-box h3:first-child { margin-top: 0; }
+
+    /* ===================================================
+       DESKTOP MODE SWITCH (SCREEN WIDTH >= 769px)
+       =================================================== */
+    @media (min-width: 769px) {
+      body { flex-direction: row; height: 100vh; }
+
+      .sidebar {
+        width: 240px;
+        height: 100%;
+        border-right: 1px solid var(--card-border);
+        border-bottom: none;
+        padding: 24px 16px;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+
+      .brand { display: flex; }
+      .mobile-brand { display: none; }
+
+      .nav-wrapper { width: 100%; }
+
+      .nav-list { flex-direction: column; width: 100%; gap: 6px; }
+
+      .nav-btn {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 12px;
+        gap: 8px;
+        text-align: left;
+        justify-content: flex-start;
+      }
+
+      .sidebar-footer { display: block; }
+
+      topbar { height: 60px; padding: 0 24px; }
+      .content-area { padding: 40px; }
+      .hero-heading { font-size: 40px; }
+      .feature-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+      .product-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    }
+
+    @media (min-width: 1200px) {
+      .product-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR (TRANSFORMS TO TOP NAV IN MOBILE MODE) -->
+  <aside class="sidebar">
+    <div class="nav-wrapper">
+      <div class="brand"><div class="brand-icon"></div> ULTRASTEC</div>
+      <ul class="nav-list">
+        <li class="nav-item active" id="nav-landing">
+          <button class="nav-btn" onclick="switchTab('landing')">🏠 <span>Landing Page</span></button>
+        </li>
+        <li class="nav-item" id="nav-catalog">
+          <button class="nav-btn" onclick="switchTab('catalog')">🌐 <span>Product Catalog</span></button>
+        </li>
+        <li class="nav-item" id="nav-terms">
+          <button class="nav-btn" onclick="switchTab('terms')">📜 <span>Terms & Conditions</span></button>
+        </li>
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      NODE: UT-PUBLIC-01<br>CORE PLATFORM V2.4
+    </div>
+  </aside>
+
+  <main>
+    <topbar>
+      <div class="mobile-brand">ULTRASTEC</div>
+      <div class="status-indicator">
+        <span class="dot"></span>
+        <span>SYSTEM STATUS: ONLINE</span>
+      </div>
+    </topbar>
+
+    <div class="content-area">
+      
+      <!-- LANDING PAGE -->
+      <div class="page-view active" id="view-landing">
+        <div class="hero-tag">AUTONOMOUS FIELD SYSTEMS — 01</div>
+        <h1 class="hero-heading">Robots that move<br>the world forward.</h1>
+        <p class="hero-sub">UltrasTec designs autonomous machines for field tasks requiring sub-millisecond precision.</p>
+        <button class="btn-explore" onclick="switchTab('catalog')">Explore Product Catalog →</button>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h3>Adaptive Perception</h3>
+            <p>Multi-modal sensor arrays for real-time terrain navigation.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Deterministic Kinematics</h3>
+            <p>High-precision actuators engineered for heavy payloads.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Edge Autonomy</h3>
+            <p>Onboard decision compute that operates seamlessly offline.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCT CATALOG -->
+      <div class="page-view" id="view-catalog">
+        <div class="hero-tag">AUTONOMOUS FIELD SYSTEMS — 01</div>
+        <h1 class="hero-heading" style="margin-bottom: 12px;">Systems for every frontier.</h1>
+        <p class="hero-sub">A complete range of autonomous platforms re-engineered for precision, endurance, and a changing physical world.</p>
+
+        <div class="catalog-bar">
+          <span>ALL SYSTEMS</span>
+          <span id="product-count-label">0 ACTIVE PRODUCTS</span>
+        </div>
+
+        <div class="product-grid" id="product-grid"></div>
+      </div>
+
+      <!-- TERMS & CONDITIONS -->
+      <div class="page-view" id="view-terms">
+        <h1 style="font-size: 22px; margin-bottom: 6px;">Terms & Conditions</h1>
+        <div class="hero-tag" style="text-align: left; margin-bottom: 20px;">DEPLOYMENT COMPLIANCE & GOVERNANCE</div>
+
+        <div class="terms-box">
+          <h3>01. Acceptance of Operations</h3>
+          <p>By accessing or issuing commands through the platform, you agree to adhere to all safety protocols and automated equipment compliance standards.</p>
+
+          <h3>02. Telemetry Channels</h3>
+          <p>All telemetry feedback logs are routed through secure channels. System state synchronizes directly across local node deployments.</p>
+
+          <h3>03. Software Modifications</h3>
+          <p>Tampering with remote command parameters or local storage registries (`ultrastec_fleet_data`) invalidates hardware compliance support.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- PRODUCT DETAILS MODAL -->
+  <div class="modal-overlay" id="product-modal" onclick="closeModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-id" id="modal-id">SYS-00</div>
+      <div class="modal-title" id="modal-title">Not configured</div>
+      <div class="modal-price-row">
+        <span id="modal-price">Not configured</span>
+        <span class="modal-currency" id="modal-currency">USD</span>
+      </div>
+      <div class="modal-desc" id="modal-desc">Not configured</div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'ultrastec_fleet_data';
+
+    function switchTab(tab) {
+      document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+      const targetView = document.getElementById(`view-${tab}`);
+      const targetNav = document.getElementById(`nav-${tab}`);
+      if (targetView) targetView.classList.add('active');
+      if (targetNav) targetNav.classList.add('active');
+    }
+
+    function getProducts() {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function openModal(prod, index) {
+      const modalId = document.getElementById('modal-id');
+      const modalTitle = document.getElementById('modal-title');
+      const modalPrice = document.getElementById('modal-price');
+      const modalCurrency = document.getElementById('modal-currency');
+      const modalDesc = document.getElementById('modal-desc');
+
+      if (prod && (prod.name || prod.price || prod.description || prod.desc)) {
+        modalId.innerText = prod.id || `SYS-0${index + 1}`;
+        modalTitle.innerText = prod.name || 'Not configured';
+        
+        const rawPrice = prod.price || '';
+        const currencyMatch = rawPrice.match(/USD|EUR|GBP|EGP|[$\u20AC\u00A3]/i);
+        modalCurrency.innerText = prod.currency || (currencyMatch ? currencyMatch[0].toUpperCase() : 'USD');
+        modalPrice.innerText = rawPrice ? rawPrice : 'Not configured';
+        modalDesc.innerText = prod.description || prod.desc || 'Not configured';
+      } else {
+        modalId.innerText = `SYS-0${index + 1}`;
+        modalTitle.innerText = 'Not configured';
+        modalPrice.innerText = 'Not configured';
+        modalCurrency.innerText = 'USD';
+        modalDesc.innerText = 'Not configured';
+      }
+      
+      document.getElementById('product-modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('product-modal').classList.remove('active');
+    }
+
+    function renderCatalog() {
+      const storedProducts = getProducts();
+      const grid = document.getElementById('product-grid');
+      const countLabel = document.getElementById('product-count-label');
+      
+      const minCards = 12;
+      const totalCards = Math.max(minCards, storedProducts.length);
+      
+      if (countLabel) {
+        countLabel.innerText = `${storedProducts.length} ACTIVE PRODUCTS`;
+      }
+
+      let html = '';
+      for (let i = 0; i < totalCards; i++) {
+        const prod = storedProducts[i];
+        if (prod) {
+          html += `
+            <div class="product-card" onclick='openModal(${JSON.stringify(prod).replace(/'/g, "&apos;")}, ${i})'>
+              ${prod.img ? `<img src="${prod.img}" alt="${prod.name || ''}" onerror="this.style.display='none'">` : ''}
+              <div class="card-info">
+                <span class="card-id">${prod.id || `SYS-0${i + 1}`}</span>
+                <div>
+                  <div class="card-title">${prod.name || 'Not configured'}</div>
+                  <div class="card-price">${prod.price || 'Not configured'}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="product-card" style="opacity: 0.5;" onclick='openModal(null, ${i})'>
+              <div class="card-info">
+                <span class="card-id">SYS-0${i + 1}</span>
+                <div>
+                  <div class="card-title" style="opacity: 0.5;">Empty Slot</div>
+                  <div class="card-price" style="opacity: 0.5;">Not configured</div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      }
+      if (grid) grid.innerHTML = html;
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORAGE_KEY) renderCatalog();
+    });
+
+    renderCatalog();
+  </script>
+</body>
+</html>
