@@ -40,7 +40,7 @@
       padding: 0 16px;
     }
 
-    .mobile-brand { font-weight: 700; font-size: 13px; letter-spacing: 0.1em; color: #fff; text-decoration: none; }
+    .mobile-brand { font-weight: 700; font-size: 13px; letter-spacing: 0.1em; color: #fff; }
     .status-indicator { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); font-weight: 600; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
 
@@ -64,7 +64,6 @@
       justify-content: center;
       gap: 4px;
       white-space: nowrap;
-      text-decoration: none;
     }
 
     .nav-item.active .nav-btn {
@@ -203,7 +202,7 @@
         background: #000000;
         flex-shrink: 0;
       }
-      .brand { font-weight: 700; font-size: 15px; letter-spacing: 0.1em; color: #fff; display: flex; align-items: center; gap: 8px; margin-bottom: 24px; text-decoration: none; }
+      .brand { font-weight: 700; font-size: 15px; letter-spacing: 0.1em; color: #fff; display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
       .brand-icon { width: 14px; height: 14px; border: 2px solid #fff; border-radius: 3px; }
       .desktop-sidebar .nav-list { flex-direction: column; gap: 6px; }
       .desktop-sidebar .nav-btn { width: 100%; padding: 10px 12px; font-size: 12px; justify-content: flex-start; }
@@ -219,7 +218,7 @@
 
   <div class="mobile-nav-container">
     <div class="topbar">
-      <a href="index.html" class="mobile-brand">ULTRASTEC</a>
+      <div class="mobile-brand">ULTRASTEC</div>
       <div class="status-indicator">
         <span class="dot"></span>
         <span>SYSTEM STATUS: ONLINE</span>
@@ -236,16 +235,13 @@
         <li class="nav-item m-nav-terms">
           <button class="nav-btn" onclick="switchTab('terms')">📜 <span>Terms & Conditions</span></button>
         </li>
-        <li class="nav-item">
-          <a href="dashboard.html" class="nav-btn">⚙️ <span>Dashboard</span></a>
-        </li>
       </ul>
     </div>
   </div>
 
   <aside class="desktop-sidebar">
     <div>
-      <a href="index.html" class="brand"><div class="brand-icon"></div> ULTRASTEC</a>
+      <div class="brand"><div class="brand-icon"></div> ULTRASTEC</div>
       <ul class="nav-list">
         <li class="nav-item active d-nav-landing">
           <button class="nav-btn" onclick="switchTab('landing')">🏠 <span>Landing Page</span></button>
@@ -255,9 +251,6 @@
         </li>
         <li class="nav-item d-nav-terms">
           <button class="nav-btn" onclick="switchTab('terms')">📜 <span>Terms & Conditions</span></button>
-        </li>
-        <li class="nav-item">
-          <a href="dashboard.html" class="nav-btn">⚙️ <span>Dashboard</span></a>
         </li>
       </ul>
     </div>
