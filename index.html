@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>UltrasTec — Core Platform</title>
   <style>
     :root {
@@ -13,11 +13,12 @@
       --text-muted: #8e8e93;
       --accent-cyan: #38bdf8;
       --accent-green: #22c55e;
+      --accent-amber: #f59e0b;
       --mono: monospace;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    html, body { width: 100%; min-height: 100vh; background-color: var(--bg); color: var(--text-main); }
+    html, body { width: 100%; min-height: 100vh; background-color: var(--bg); color: var(--text-main); overflow-x: hidden; }
     
     body { display: flex; flex-direction: column; width: 100%; }
     .desktop-sidebar { display: none; }
@@ -37,14 +38,14 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
+      padding: 0 12px;
     }
 
-    .mobile-brand { font-weight: 700; font-size: 13px; letter-spacing: 0.1em; color: #fff; text-decoration: none; }
-    .status-indicator { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); font-weight: 600; }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+    .mobile-brand { font-weight: 700; font-size: 12px; letter-spacing: 0.1em; color: #fff; text-decoration: none; }
+    .status-indicator { display: flex; align-items: center; gap: 6px; font-size: 10px; font-family: var(--mono); font-weight: 600; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green); }
 
-    .mobile-menu { padding: 8px 10px; }
+    .mobile-menu { padding: 6px 8px; }
     .nav-list { list-style: none; display: flex; flex-direction: row; width: 100%; gap: 4px; justify-content: space-between; }
     .nav-item { flex: 1; min-width: 0; }
 
@@ -53,7 +54,7 @@
       text-align: center;
       background: transparent;
       border: 1px solid transparent;
-      padding: 8px 2px;
+      padding: 6px 2px;
       border-radius: 6px;
       color: var(--text-muted);
       font-size: 10px;
@@ -62,7 +63,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      gap: 3px;
       white-space: nowrap;
       text-decoration: none;
     }
@@ -73,62 +74,61 @@
       border-color: rgba(255, 255, 255, 0.1);
     }
 
-    main { flex: 1; width: 100%; }
-    .content-area { padding: 24px 16px; width: 100%; }
+    main { flex: 1; width: 100%; max-width: 100vw; overflow-x: hidden; }
+    .content-area { padding: 16px 12px; width: 100%; box-sizing: border-box; }
     .page-view { display: none; }
     .page-view.active { display: block; }
 
-    .hero-tag { font-family: var(--mono); font-size: 11px; color: var(--accent-cyan); letter-spacing: 0.15em; text-align: center; margin-bottom: 16px; }
-    .hero-heading { font-size: 26px; font-weight: 800; text-align: center; line-height: 1.2; margin-bottom: 16px; }
-    .hero-sub { color: var(--text-muted); font-size: 13px; text-align: center; max-width: 520px; margin: 0 auto 28px auto; line-height: 1.5; }
+    .hero-tag { font-family: var(--mono); font-size: 10px; color: var(--accent-cyan); letter-spacing: 0.12em; text-align: center; margin-bottom: 12px; }
+    .hero-heading { font-size: 22px; font-weight: 800; text-align: center; line-height: 1.2; margin-bottom: 12px; }
+    .hero-sub { color: var(--text-muted); font-size: 12px; text-align: center; max-width: 520px; margin: 0 auto 20px auto; line-height: 1.4; }
     
     .btn-explore {
       display: block;
-      margin: 0 auto 32px auto;
+      margin: 0 auto 24px auto;
       background: #ffffff;
       color: #000000;
       border: none;
-      padding: 10px 20px;
+      padding: 8px 16px;
       border-radius: 6px;
       font-weight: 600;
-      font-size: 13px;
+      font-size: 12px;
       cursor: pointer;
     }
 
-    .feature-grid { display: grid; grid-template-columns: 1fr; gap: 12px; max-width: 1000px; margin: 0 auto; }
-    .feature-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 16px; }
-    .feature-card h3 { font-size: 14px; margin-bottom: 6px; }
-    .feature-card p { color: var(--text-muted); font-size: 12px; line-height: 1.5; }
+    .feature-grid { display: grid; grid-template-columns: 1fr; gap: 10px; width: 100%; }
+    .feature-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 14px; }
+    .feature-card h3 { font-size: 13px; margin-bottom: 4px; }
+    .feature-card p { color: var(--text-muted); font-size: 11px; line-height: 1.4; }
 
     .catalog-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-family: var(--mono);
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
-      padding-bottom: 12px;
+      padding-bottom: 10px;
       border-bottom: 1px solid var(--card-border);
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
-    .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; }
 
     .product-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 10px;
+      border-radius: 8px;
       aspect-ratio: 1 / 1;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 12px;
+      padding: 10px;
       position: relative;
       overflow: hidden;
       cursor: pointer;
     }
 
-    /* Shows the full image without cropping top/bottom */
     .product-card img {
       position: absolute;
       inset: 0;
@@ -139,14 +139,27 @@
       transition: opacity 0.2s ease;
     }
 
-    .product-card:hover img {
-      opacity: 1;
-    }
+    .product-card:hover img { opacity: 1; }
 
     .card-info { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%; pointer-events: none; }
-    .card-id { font-family: var(--mono); font-size: 10px; color: var(--accent-cyan); }
-    .card-title { font-size: 12px; font-weight: 600; color: #fff; margin-top: 4px; }
-    .card-price { font-family: var(--mono); font-size: 10px; color: var(--accent-green); margin-top: 2px; }
+    .card-top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+    .card-id { font-family: var(--mono); font-size: 9px; color: var(--accent-cyan); }
+    
+    .badge-coming-soon {
+      font-family: var(--mono);
+      font-size: 8px;
+      font-weight: 700;
+      color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 2px 4px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-title { font-size: 11px; font-weight: 600; color: #fff; margin-top: 2px; }
+    .card-price { font-family: var(--mono); font-size: 9px; color: var(--accent-green); margin-top: 1px; }
 
     .modal-overlay {
       position: fixed;
@@ -159,7 +172,7 @@
       justify-content: center;
       opacity: 0;
       pointer-events: none;
-      padding: 16px;
+      padding: 12px;
       transition: opacity 0.2s ease;
     }
 
@@ -172,7 +185,7 @@
       width: 100%;
       max-width: 480px;
       max-height: 85vh;
-      padding: 20px;
+      padding: 16px;
       position: relative;
       display: flex;
       flex-direction: column;
@@ -181,34 +194,35 @@
 
     .modal-close {
       position: absolute;
-      top: 14px;
-      right: 14px;
+      top: 12px;
+      right: 12px;
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 18px;
+      font-size: 16px;
       cursor: pointer;
     }
 
     .modal-img-preview {
       width: 100%;
-      height: 220px;
+      height: 180px;
       object-fit: contain;
       background: #000;
       border-radius: 8px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       border: 1px solid var(--card-border);
       flex-shrink: 0;
     }
 
-    .modal-id { font-family: var(--mono); font-size: 11px; color: var(--accent-cyan); margin-bottom: 6px; }
-    .modal-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-    .modal-price-row { display: flex; gap: 6px; font-family: var(--mono); font-size: 13px; color: var(--accent-green); margin-bottom: 14px; }
-    .modal-currency { font-size: 10px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
-    .modal-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; border-top: 1px solid var(--card-border); padding-top: 14px; white-space: pre-wrap; }
+    .modal-id-row { display: flex; gap: 8px; align-items: center; margin-bottom: 4px; }
+    .modal-id { font-family: var(--mono); font-size: 10px; color: var(--accent-cyan); }
+    .modal-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+    .modal-price-row { display: flex; gap: 6px; font-family: var(--mono); font-size: 12px; color: var(--accent-green); margin-bottom: 12px; }
+    .modal-currency { font-size: 9px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 2px 5px; border-radius: 4px; text-transform: uppercase; }
+    .modal-desc { font-size: 11px; color: var(--text-muted); line-height: 1.5; border-top: 1px solid var(--card-border); padding-top: 12px; white-space: pre-wrap; }
 
-    .terms-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 20px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
-    .terms-box h3 { color: #fff; font-size: 14px; margin: 14px 0 4px 0; }
+    .terms-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 16px; font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+    .terms-box h3 { color: #fff; font-size: 13px; margin: 12px 0 4px 0; }
     .terms-box h3:first-child { margin-top: 0; }
 
     @media (min-width: 769px) {
@@ -234,6 +248,7 @@
       .hero-heading { font-size: 40px; }
       .feature-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
       .product-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+      .modal-img-preview { height: 220px; }
     }
   </style>
 </head>
@@ -245,19 +260,19 @@
       <a href="index.html" class="mobile-brand">ULTRASTEC</a>
       <div class="status-indicator">
         <span class="dot"></span>
-        <span>SYSTEM STATUS: ONLINE</span>
+        <span>ONLINE</span>
       </div>
     </div>
     <div class="mobile-menu">
       <ul class="nav-list">
         <li class="nav-item active m-nav-landing">
-          <button class="nav-btn" onclick="switchTab('landing')">🏠 <span>Landing Page</span></button>
+          <button class="nav-btn" onclick="switchTab('landing')">🏠 <span>Landing</span></button>
         </li>
         <li class="nav-item m-nav-catalog">
-          <button class="nav-btn" onclick="switchTab('catalog')">🌐 <span>Product Catalog</span></button>
+          <button class="nav-btn" onclick="switchTab('catalog')">🌐 <span>Catalog</span></button>
         </li>
         <li class="nav-item m-nav-terms">
-          <button class="nav-btn" onclick="switchTab('terms')">📜 <span>Terms & Conditions</span></button>
+          <button class="nav-btn" onclick="switchTab('terms')">📜 <span>Terms</span></button>
         </li>
       </ul>
     </div>
@@ -314,7 +329,7 @@
       <!-- CATALOG VIEW -->
       <div class="page-view" id="view-catalog">
         <div class="hero-tag">AUTONOMOUS FIELD SYSTEMS — 01</div>
-        <h1 class="hero-heading" style="margin-bottom: 12px;">Systems for every frontier.</h1>
+        <h1 class="hero-heading" style="margin-bottom: 8px;">Systems for every frontier.</h1>
         <p class="hero-sub">A complete range of autonomous platforms re-engineered for precision, endurance, and a changing physical world.</p>
 
         <div class="catalog-bar">
@@ -327,8 +342,8 @@
 
       <!-- TERMS VIEW -->
       <div class="page-view" id="view-terms">
-        <h1 style="font-size: 22px; margin-bottom: 6px;">Terms & Conditions</h1>
-        <div class="hero-tag" style="text-align: left; margin-bottom: 20px;">DEPLOYMENT COMPLIANCE & GOVERNANCE</div>
+        <h1 style="font-size: 20px; margin-bottom: 4px;">Terms & Conditions</h1>
+        <div class="hero-tag" style="text-align: left; margin-bottom: 16px;">DEPLOYMENT COMPLIANCE & GOVERNANCE</div>
 
         <div class="terms-box">
           <h3>01. Acceptance of Operations</h3>
@@ -348,7 +363,10 @@
     <div class="modal-card" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal()">✕</button>
       <img id="modal-img" class="modal-img-preview" src="" alt="Product Preview" />
-      <div class="modal-id" id="modal-id">SYS-01</div>
+      <div class="modal-id-row">
+        <div class="modal-id" id="modal-id">SYS-01</div>
+        <span class="badge-coming-soon" id="modal-badge" style="display: none;">COMING SOON</span>
+      </div>
       <div class="modal-title" id="modal-title">UH1</div>
       <div class="modal-price-row">
         <span id="modal-price">$40,000 - $45,000</span>
@@ -364,28 +382,31 @@
         name: "UH1",
         price: "$40,000 - $45,000",
         currency: "USD",
-        description: `1. Physical Dimensions & Chassis[cite: 1]
-• Overall Height: 165 cm[cite: 1]
-• Total Mass: ~52 kg (~114.6 lbs)[cite: 1]
-• Chassis Frame: Lightweight Magnesium-Aluminum Alloy internal structure with Carbon Fiber-PEEK exterior panels.[cite: 1]
-• Payload Capacity: Dual-Arm Carrying Payload: 15 kg (33 lbs) continuous; Single-Arm Peak Lift: 10 kg (22 lbs).[cite: 1]
+        comingSoon: true,
+        description: `Flies with its boots and thrusts air for high-precision autonomous field maneuverability.
 
-2. Power & Energy Subsystem[cite: 1]
-• Battery Type: High-Density Solid-State Battery (Lithium-metal / Solid Ceramic Electrolyte).[cite: 1]
-• Pack Capacity: 3.0 kWh | Energy Density: ~400 Wh/kg | Weight: ~7.5 kg (16.5 lbs).[cite: 1]
-• Placement: Primary (2.0 kWh) in lower torso/lumbar region; Secondary (1.0 kWh) in upper thigh armor housings.[cite: 1]
-• Operational Runtime: Standby/Patrol: 12 hrs | Domestic Assistance: 8.5 hrs | Heavy Chores: 6.0 hrs.[cite: 1]
-• Charging Interface: Wireless Inductive Docking Footpads + Rear Fast-Charge Contact Port (0-80% in 25 mins).[cite: 1]
+1. Physical Dimensions & Chassis
+• Overall Height: 165 cm
+• Total Mass: ~52 kg (~114.6 lbs)
+• Chassis Frame: Lightweight Magnesium-Aluminum Alloy internal structure with Carbon Fiber-PEEK exterior panels.
+• Payload Capacity: Dual-Arm Carrying Payload: 15 kg (33 lbs) continuous; Single-Arm Peak Lift: 10 kg (22 lbs).
 
-3. Actuation & Joint System (360° Infinite Rotation)[cite: 1]
-• Uses Capacitive/Optical Rotary Slip Rings and high-torque Frameless Brushless DC Motors with Harmonic Drives.[cite: 1]
-• Total Degrees of Freedom: 42 DoF (Body: 20 DoF; Hands: 22 DoF).[cite: 1]
+2. Power & Energy Subsystem
+• Battery Type: High-Density Solid-State Battery (Lithium-metal / Solid Ceramic Electrolyte).
+• Pack Capacity: 3.0 kWh | Energy Density: ~400 Wh/kg | Weight: ~7.5 kg (16.5 lbs).
+• Placement: Primary (2.0 kWh) in lower torso/lumbar region; Secondary (1.0 kWh) in upper thigh armor housings.
+• Operational Runtime: Standby/Patrol: 12 hrs | Domestic Assistance: 8.5 hrs | Heavy Chores: 6.0 hrs.
+• Charging Interface: Wireless Inductive Docking Footpads + Rear Fast-Charge Contact Port (0-80% in 25 mins).
 
-4. Perception & Onboard Compute[cite: 1]
-• Vision System: 360° spatial coverage using 6 High-FPS RGB-D Depth Cameras.[cite: 1]
-• Spatial Perception: 360° Solid-State LIDAR hidden behind top display housing.[cite: 1]
-• Tactile Sensing: Piezoresistive tactile skins on palm, fingers, and lower arms.[cite: 1]
-• Compute Architecture: Dual Liquid-Cooled AI Inference Processors (800+ TOPS combined).[cite: 1]`,
+3. Actuation & Joint System (360° Infinite Rotation)
+• Uses Capacitive/Optical Rotary Slip Rings and high-torque Frameless Brushless DC Motors with Harmonic Drives.
+• Total Degrees of Freedom: 42 DoF (Body: 20 DoF; Hands: 22 DoF).
+
+4. Perception & Onboard Compute
+• Vision System: 360° spatial coverage using 6 High-FPS RGB-D Depth Cameras.
+• Spatial Perception: 360° Solid-State LIDAR hidden behind top display housing.
+• Tactile Sensing: Piezoresistive tactile skins on palm, fingers, and lower arms.
+• Compute Architecture: Dual Liquid-Cooled AI Inference Processors (800+ TOPS combined).`,
         img: "WhatsApp Image 2026-07-30 at 3.21.55 PM (3).jpeg"
       }
     ];
@@ -405,7 +426,10 @@
             <div class="product-card" onclick='openModal(${i})'>
               ${prod.img ? `<img src="${prod.img}" alt="${prod.name}">` : ''}
               <div class="card-info">
-                <span class="card-id">SYS-0${i + 1}</span>
+                <div class="card-top-row">
+                  <span class="card-id">SYS-0${i + 1}</span>
+                  ${prod.comingSoon ? `<span class="badge-coming-soon">COMING SOON</span>` : ''}
+                </div>
                 <div>
                   <div class="card-title">${prod.name}</div>
                   <div class="card-price">${prod.price}</div>
@@ -447,6 +471,13 @@
       document.getElementById('modal-currency').innerText = prod.currency || 'USD';
       document.getElementById('modal-desc').innerText = prod.description;
       
+      const badge = document.getElementById('modal-badge');
+      if (prod.comingSoon) {
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+
       const modalImg = document.getElementById('modal-img');
       modalImg.src = prod.img;
       modalImg.style.display = 'block';
@@ -460,6 +491,7 @@
       document.getElementById('modal-price').innerText = 'N/A';
       document.getElementById('modal-currency').innerText = 'USD';
       document.getElementById('modal-desc').innerText = 'This slot has no hardware system assigned.';
+      document.getElementById('modal-badge').style.display = 'none';
       document.getElementById('modal-img').style.display = 'none';
 
       document.getElementById('product-modal').classList.add('active');
