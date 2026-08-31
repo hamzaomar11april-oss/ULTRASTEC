@@ -40,7 +40,7 @@
       padding: 0 16px;
     }
 
-    .mobile-brand { font-weight: 700; font-size: 13px; letter-spacing: 0.1em; color: #fff; }
+    .mobile-brand { font-weight: 700; font-size: 13px; letter-spacing: 0.1em; color: #fff; text-decoration: none; }
     .status-indicator { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); font-weight: 600; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
 
@@ -64,6 +64,7 @@
       justify-content: center;
       gap: 4px;
       white-space: nowrap;
+      text-decoration: none;
     }
 
     .nav-item.active .nav-btn {
@@ -127,19 +128,25 @@
       cursor: pointer;
     }
 
+    /* Shows the full image without cropping top/bottom */
     .product-card img {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      opacity: 0.35;
+      object-fit: contain;
+      opacity: 0.75;
+      transition: opacity 0.2s ease;
     }
 
-    .card-info { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+    .product-card:hover img {
+      opacity: 1;
+    }
+
+    .card-info { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%; pointer-events: none; }
     .card-id { font-family: var(--mono); font-size: 10px; color: var(--accent-cyan); }
     .card-title { font-size: 12px; font-weight: 600; color: #fff; margin-top: 4px; }
-    .card-price { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+    .card-price { font-family: var(--mono); font-size: 10px; color: var(--accent-green); margin-top: 2px; }
 
     .modal-overlay {
       position: fixed;
@@ -153,6 +160,7 @@
       opacity: 0;
       pointer-events: none;
       padding: 16px;
+      transition: opacity 0.2s ease;
     }
 
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
@@ -162,9 +170,13 @@
       border: 1px solid var(--card-border);
       border-radius: 12px;
       width: 100%;
-      max-width: 440px;
+      max-width: 480px;
+      max-height: 85vh;
       padding: 20px;
       position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
     }
 
     .modal-close {
@@ -178,11 +190,22 @@
       cursor: pointer;
     }
 
+    .modal-img-preview {
+      width: 100%;
+      height: 220px;
+      object-fit: contain;
+      background: #000;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      border: 1px solid var(--card-border);
+      flex-shrink: 0;
+    }
+
     .modal-id { font-family: var(--mono); font-size: 11px; color: var(--accent-cyan); margin-bottom: 6px; }
     .modal-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 4px; }
     .modal-price-row { display: flex; gap: 6px; font-family: var(--mono); font-size: 13px; color: var(--accent-green); margin-bottom: 14px; }
     .modal-currency { font-size: 10px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
-    .modal-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; border-top: 1px solid var(--card-border); padding-top: 14px; }
+    .modal-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; border-top: 1px solid var(--card-border); padding-top: 14px; white-space: pre-wrap; }
 
     .terms-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 20px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
     .terms-box h3 { color: #fff; font-size: 14px; margin: 14px 0 4px 0; }
@@ -202,7 +225,7 @@
         background: #000000;
         flex-shrink: 0;
       }
-      .brand { font-weight: 700; font-size: 15px; letter-spacing: 0.1em; color: #fff; display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
+      .brand { font-weight: 700; font-size: 15px; letter-spacing: 0.1em; color: #fff; display: flex; align-items: center; gap: 8px; margin-bottom: 24px; text-decoration: none; }
       .brand-icon { width: 14px; height: 14px; border: 2px solid #fff; border-radius: 3px; }
       .desktop-sidebar .nav-list { flex-direction: column; gap: 6px; }
       .desktop-sidebar .nav-btn { width: 100%; padding: 10px 12px; font-size: 12px; justify-content: flex-start; }
@@ -216,9 +239,10 @@
 </head>
 <body>
 
+  <!-- MOBILE NAVIGATION -->
   <div class="mobile-nav-container">
     <div class="topbar">
-      <div class="mobile-brand">ULTRASTEC</div>
+      <a href="index.html" class="mobile-brand">ULTRASTEC</a>
       <div class="status-indicator">
         <span class="dot"></span>
         <span>SYSTEM STATUS: ONLINE</span>
@@ -239,9 +263,10 @@
     </div>
   </div>
 
+  <!-- DESKTOP SIDEBAR -->
   <aside class="desktop-sidebar">
     <div>
-      <div class="brand"><div class="brand-icon"></div> ULTRASTEC</div>
+      <a href="index.html" class="brand"><div class="brand-icon"></div> ULTRASTEC</a>
       <ul class="nav-list">
         <li class="nav-item active d-nav-landing">
           <button class="nav-btn" onclick="switchTab('landing')">🏠 <span>Landing Page</span></button>
@@ -259,9 +284,11 @@
     </div>
   </aside>
 
+  <!-- MAIN VIEW -->
   <main>
     <div class="content-area">
       
+      <!-- LANDING PAGE VIEW -->
       <div class="page-view active" id="view-landing">
         <div class="hero-tag">AUTONOMOUS FIELD SYSTEMS — 01</div>
         <h1 class="hero-heading">Robots that move<br>the world forward.</h1>
@@ -284,6 +311,7 @@
         </div>
       </div>
 
+      <!-- CATALOG VIEW -->
       <div class="page-view" id="view-catalog">
         <div class="hero-tag">AUTONOMOUS FIELD SYSTEMS — 01</div>
         <h1 class="hero-heading" style="margin-bottom: 12px;">Systems for every frontier.</h1>
@@ -291,12 +319,13 @@
 
         <div class="catalog-bar">
           <span>ALL SYSTEMS</span>
-          <span id="product-count-label">LOADING...</span>
+          <span id="product-count-label">1 ACTIVE PRODUCT</span>
         </div>
 
         <div class="product-grid" id="product-grid"></div>
       </div>
 
+      <!-- TERMS VIEW -->
       <div class="page-view" id="view-terms">
         <h1 style="font-size: 22px; margin-bottom: 6px;">Terms & Conditions</h1>
         <div class="hero-tag" style="text-align: left; margin-bottom: 20px;">DEPLOYMENT COMPLIANCE & GOVERNANCE</div>
@@ -314,87 +343,66 @@
     </div>
   </main>
 
+  <!-- PRODUCT MODAL -->
   <div class="modal-overlay" id="product-modal" onclick="closeModal()">
     <div class="modal-card" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal()">✕</button>
-      <div class="modal-id" id="modal-id">SYS-00</div>
-      <div class="modal-title" id="modal-title">Not configured</div>
+      <img id="modal-img" class="modal-img-preview" src="" alt="Product Preview" />
+      <div class="modal-id" id="modal-id">SYS-01</div>
+      <div class="modal-title" id="modal-title">UH1</div>
       <div class="modal-price-row">
-        <span id="modal-price">Not configured</span>
+        <span id="modal-price">$40,000 - $45,000</span>
         <span class="modal-currency" id="modal-currency">USD</span>
       </div>
-      <div class="modal-desc" id="modal-desc">Not configured</div>
+      <div class="modal-desc" id="modal-desc"></div>
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  <script>
+    const localProducts = [
+      {
+        name: "UH1",
+        price: "$40,000 - $45,000",
+        currency: "USD",
+        description: `1. Physical Dimensions & Chassis[cite: 1]
+• Overall Height: 165 cm[cite: 1]
+• Total Mass: ~52 kg (~114.6 lbs)[cite: 1]
+• Chassis Frame: Lightweight Magnesium-Aluminum Alloy internal structure with Carbon Fiber-PEEK exterior panels.[cite: 1]
+• Payload Capacity: Dual-Arm Carrying Payload: 15 kg (33 lbs) continuous; Single-Arm Peak Lift: 10 kg (22 lbs).[cite: 1]
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC5INe6YKpHoBBktMGPvzTGADPyrHwr064",
-      authDomain: "ultrastec-c6b77.firebaseapp.com",
-      databaseURL: "https://ultrastec-c6b77-default-rtdb.firebaseio.com",
-      projectId: "ultrastec-c6b77",
-      storageBucket: "ultrastec-c6b77.firebasestorage.app",
-      messagingSenderId: "838680154814",
-      appId: "1:838680154814:web:6e726cbc50e8a742edc4ef",
-      measurementId: "G-311T0Y13JH"
-    };
+2. Power & Energy Subsystem[cite: 1]
+• Battery Type: High-Density Solid-State Battery (Lithium-metal / Solid Ceramic Electrolyte).[cite: 1]
+• Pack Capacity: 3.0 kWh | Energy Density: ~400 Wh/kg | Weight: ~7.5 kg (16.5 lbs).[cite: 1]
+• Placement: Primary (2.0 kWh) in lower torso/lumbar region; Secondary (1.0 kWh) in upper thigh armor housings.[cite: 1]
+• Operational Runtime: Standby/Patrol: 12 hrs | Domestic Assistance: 8.5 hrs | Heavy Chores: 6.0 hrs.[cite: 1]
+• Charging Interface: Wireless Inductive Docking Footpads + Rear Fast-Charge Contact Port (0-80% in 25 mins).[cite: 1]
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+3. Actuation & Joint System (360° Infinite Rotation)[cite: 1]
+• Uses Capacitive/Optical Rotary Slip Rings and high-torque Frameless Brushless DC Motors with Harmonic Drives.[cite: 1]
+• Total Degrees of Freedom: 42 DoF (Body: 20 DoF; Hands: 22 DoF).[cite: 1]
 
-    window.switchTab = function(tab) {
-      document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      document.getElementById(`view-${tab}`).classList.add('active');
-      document.querySelectorAll(`.m-nav-${tab}, .d-nav-${tab}`).forEach(el => el.classList.add('active'));
-    };
-
-    window.openModal = function(prod, index) {
-      const modalId = document.getElementById('modal-id');
-      const modalTitle = document.getElementById('modal-title');
-      const modalPrice = document.getElementById('modal-price');
-      const modalCurrency = document.getElementById('modal-currency');
-      const modalDesc = document.getElementById('modal-desc');
-
-      if (prod && prod.name) {
-        modalId.innerText = `SYS-0${index + 1}`;
-        modalTitle.innerText = prod.name;
-        modalPrice.innerText = prod.price || 'Not configured';
-        modalCurrency.innerText = 'USD';
-        modalDesc.innerText = prod.description || 'Not configured';
-      } else {
-        modalId.innerText = `SYS-0${index + 1}`;
-        modalTitle.innerText = 'Not configured';
-        modalPrice.innerText = 'Not configured';
-        modalCurrency.innerText = 'USD';
-        modalDesc.innerText = 'Not configured';
+4. Perception & Onboard Compute[cite: 1]
+• Vision System: 360° spatial coverage using 6 High-FPS RGB-D Depth Cameras.[cite: 1]
+• Spatial Perception: 360° Solid-State LIDAR hidden behind top display housing.[cite: 1]
+• Tactile Sensing: Piezoresistive tactile skins on palm, fingers, and lower arms.[cite: 1]
+• Compute Architecture: Dual Liquid-Cooled AI Inference Processors (800+ TOPS combined).[cite: 1]`,
+        img: "WhatsApp Image 2026-07-30 at 3.21.55 PM (3).jpeg"
       }
-      
-      document.getElementById('product-modal').classList.add('active');
-    };
+    ];
 
-    window.closeModal = function() {
-      document.getElementById('product-modal').classList.remove('active');
-    };
-
-    // REAL-TIME CLOUD LISTENER
-    onSnapshot(collection(db, "products"), (snapshot) => {
-      const storedProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    function renderCatalog() {
       const grid = document.getElementById('product-grid');
       const countLabel = document.getElementById('product-count-label');
-      
-      const totalCards = Math.max(12, storedProducts.length);
-      if (countLabel) countLabel.innerText = `${storedProducts.length} ACTIVE PRODUCTS`;
+      const totalCards = 12;
+
+      if (countLabel) countLabel.innerText = `${localProducts.length} ACTIVE PRODUCT`;
 
       let html = '';
       for (let i = 0; i < totalCards; i++) {
-        const prod = storedProducts[i];
+        const prod = localProducts[i];
         if (prod) {
           html += `
-            <div class="product-card" onclick='openModal(${JSON.stringify(prod).replace(/'/g, "&apos;")}, ${i})'>
+            <div class="product-card" onclick='openModal(${i})'>
               ${prod.img ? `<img src="${prod.img}" alt="${prod.name}">` : ''}
               <div class="card-info">
                 <span class="card-id">SYS-0${i + 1}</span>
@@ -407,7 +415,7 @@
           `;
         } else {
           html += `
-            <div class="product-card" style="opacity: 0.5;" onclick='openModal(null, ${i})'>
+            <div class="product-card" style="opacity: 0.3;" onclick='openEmptyModal(${i})'>
               <div class="card-info">
                 <span class="card-id">SYS-0${i + 1}</span>
                 <div>
@@ -420,7 +428,48 @@
         }
       }
       if (grid) grid.innerHTML = html;
-    });
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.getElementById(`view-${tab}`).classList.add('active');
+      document.querySelectorAll(`.m-nav-${tab}, .d-nav-${tab}`).forEach(el => el.classList.add('active'));
+    }
+
+    function openModal(index) {
+      const prod = localProducts[index];
+      if (!prod) return;
+
+      document.getElementById('modal-id').innerText = `SYS-0${index + 1}`;
+      document.getElementById('modal-title').innerText = prod.name;
+      document.getElementById('modal-price').innerText = prod.price;
+      document.getElementById('modal-currency').innerText = prod.currency || 'USD';
+      document.getElementById('modal-desc').innerText = prod.description;
+      
+      const modalImg = document.getElementById('modal-img');
+      modalImg.src = prod.img;
+      modalImg.style.display = 'block';
+
+      document.getElementById('product-modal').classList.add('active');
+    }
+
+    function openEmptyModal(index) {
+      document.getElementById('modal-id').innerText = `SYS-0${index + 1}`;
+      document.getElementById('modal-title').innerText = 'Unconfigured Slot';
+      document.getElementById('modal-price').innerText = 'N/A';
+      document.getElementById('modal-currency').innerText = 'USD';
+      document.getElementById('modal-desc').innerText = 'This slot has no hardware system assigned.';
+      document.getElementById('modal-img').style.display = 'none';
+
+      document.getElementById('product-modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('product-modal').classList.remove('active');
+    }
+
+    document.addEventListener("DOMContentLoaded", renderCatalog);
   </script>
 </body>
 </html>
