@@ -129,38 +129,37 @@
       cursor: pointer;
     }
 
-    /* Mobile image compatibility */
     .product-card img {
       position: absolute;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: contain;
-      opacity: 0.85;
-      display: block;
-      z-index: 1;
+      opacity: 0.75;
+      transition: opacity 0.2s ease;
     }
+
+    .product-card:hover img { opacity: 1; }
 
     .card-info { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%; pointer-events: none; }
     .card-top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-    .card-id { font-family: var(--mono); font-size: 9px; color: var(--accent-cyan); text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+    .card-id { font-family: var(--mono); font-size: 9px; color: var(--accent-cyan); }
     
     .badge-coming-soon {
       font-family: var(--mono);
       font-size: 8px;
       font-weight: 700;
       color: var(--accent-amber);
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(245, 158, 11, 0.5);
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
       padding: 2px 4px;
       border-radius: 3px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
-    .card-title { font-size: 11px; font-weight: 600; color: #fff; margin-top: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-    .card-price { font-family: var(--mono); font-size: 9px; color: var(--accent-green); margin-top: 1px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+    .card-title { font-size: 11px; font-weight: 600; color: #fff; margin-top: 2px; }
+    .card-price { font-family: var(--mono); font-size: 9px; color: var(--accent-green); margin-top: 1px; }
 
     .modal-overlay {
       position: fixed;
@@ -378,9 +377,6 @@
   </div>
 
   <script>
-    // Encoded image string to prevent mobile browser URL parsing breaks
-    const imagePath = encodeURI("WhatsApp Image 2026-07-30 at 3.21.55 PM (3).jpeg");
-
     const localProducts = [
       {
         name: "UH1",
@@ -411,7 +407,7 @@
 • Spatial Perception: 360° Solid-State LIDAR hidden behind top display housing.
 • Tactile Sensing: Piezoresistive tactile skins on palm, fingers, and lower arms.
 • Compute Architecture: Dual Liquid-Cooled AI Inference Processors (800+ TOPS combined).`,
-        img: imagePath
+        img: "WhatsApp Image 2026-07-30 at 3.21.55 PM (3).jpeg"
       }
     ];
 
@@ -428,7 +424,7 @@
         if (prod) {
           html += `
             <div class="product-card" onclick='openModal(${i})'>
-              ${prod.img ? `<img src="${prod.img}" alt="${prod.name}" loading="eager">` : ''}
+              ${prod.img ? `<img src="${prod.img}" alt="${prod.name}">` : ''}
               <div class="card-info">
                 <div class="card-top-row">
                   <span class="card-id">SYS-0${i + 1}</span>
