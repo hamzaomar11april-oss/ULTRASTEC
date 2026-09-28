@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UltrasTec — Core Platform</title>
-  <link rel="icon" type="image/png" href="images.png">
+  <title>UltrasTec</title>
   <style>
     :root {
       --bg: #050507;
@@ -160,8 +159,8 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: contain; /* Full image visible without cropping */
-      padding: 16px;        /* Adds breathing room */
+      object-fit: contain;
+      padding: 16px;
       z-index: 1;
     }
 
@@ -354,7 +353,7 @@
   <script>
     const STORAGE_KEY = 'ultrastec_fleet_data';
 
-    // Initialize default robot if storage is empty
+    // Initialize default robot with self-contained embedded SVG Graphic Data URI
     function initializeDefaultData() {
       if (!localStorage.getItem(STORAGE_KEY)) {
         const defaultProducts = [
@@ -362,7 +361,7 @@
             id: "SYS-01",
             name: "UH1",
             price: "$40,000 - $45,000",
-            img: "robot.jpeg",
+            img: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><rect width='400' height='400' fill='%23050507'/><g fill='none' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M200 60v40m-35-15h70m-50 45h30l10 55-25 10-25-10z'/><rect x='170' y='110' width='60' height='45' rx='6' fill='%23090a0f' stroke='%23f3f4f6' stroke-width='4'/><text x='200' y='138' font-family='monospace' font-size='16' font-weight='bold' fill='%2338bdf8' text-anchor='middle'>001</text><path d='M155 175l-25 70 15 15 20-55v85l25 35 25-35v-85l20 55 15-15-25-70'/><path d='M170 175l-45 35 15 20 30-20'/><path d='M230 175l45 35-15 20-30-20'/></g></svg>",
             description: `Flies with its boots and thrusts air for high-precision autonomous field maneuverability.
 
 1. Physical Dimensions & Chassis
