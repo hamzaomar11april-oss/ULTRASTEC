@@ -6,7 +6,6 @@
     <title>UltrasTec AI</title>
     <!-- Import Pixelify Sans pixel font -->
     <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
-    <script src="https://js.puter.com/v2/"></script>
     <style>
         :root {
             --bg-color: #f0f4f9;
@@ -564,30 +563,92 @@
             }
 
             try {
-                // Puter.js – free AI, user signs in once (or continues as guest)
-                const reply = await puter.ai.chat(text, {
-                    model: 'openai/gpt-4o-mini'
-                });
+                // Try multiple free public AI endpoints (no key, no login)
+                // Falls back automatically if one is rate-limited
+                const systemPrompt = 'You are UltrasTec, a helpful, friendly and concise AI assistant. Answer clearly and warmly.';
+                let responseContent = null;
+                let lastError = null;
+
+                // 1. Kilo free gateway
+                try {
+                    const r1 = await fetch('https://api.kilo.ai/api/gateway/chat/completions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            model: 'kilo-auto/free',
+                            messages: [
+                                { role: 'system', content: systemPrompt },
+                                { role: 'user', content: text }
+                            ],
+                            max_tokens: 800
+                        })
+                    });
+                    const d1 = await r1.json();
+                    if (r1.ok && d1.choices?.[0]?.message?.content) {
+                        responseContent = d1.choices[0].message.content;
+                    } else {
+                        lastError = d1?.error?.message || d1?.error || d1?.message || 'Kilo limited';
+                    }
+                } catch (e) { lastError = e.message; }
+
+                // 2. Pollinations (if Kilo failed)
+                if (!responseContent) {
+                    try {
+                        const prompt = encodeURIComponent(text);
+                        const sys = encodeURIComponent(systemPrompt);
+                        const r2 = await fetch(`https://text.pollinations.ai/${prompt}?system=${sys}&model=openai&seed=${Date.now()}`);
+                        const t2 = await r2.text();
+                        if (r2.ok && t2 && !t2.toLowerCase().includes('free limit') && !t2.toLowerCase().includes('payment required')) {
+                            responseContent = t2;
+                        } else {
+                            lastError = 'Pollinations limited';
+                        }
+                    } catch (e) { lastError = e.message; }
+                }
+
+                // 3. LLM7 free models (if both previous failed)
+                if (!responseContent) {
+                    const freeModels = ['GLM-5.3-Flash', 'gpt-oss:20b', 'mistral-Nemo-Instruct-2407', 'DeepSeek-V4-Flash-0731'];
+                    for (const model of freeModels) {
+                        try {
+                            const r3 = await fetch('https://api.llm7.io/v1/chat/completions', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': 'Bearer unused'
+                                },
+                                body: JSON.stringify({
+                                    model: model,
+                                    messages: [
+                                        { role: 'system', content: systemPrompt },
+                                        { role: 'user', content: text }
+                                    ],
+                                    max_tokens: 800
+                                })
+                            });
+                            const d3 = await r3.json();
+                            if (r3.ok && d3.choices?.[0]?.message?.content) {
+                                responseContent = d3.choices[0].message.content;
+                                break;
+                            } else {
+                                lastError = d3?.error?.message || model + ' limited';
+                            }
+                        } catch (e) { lastError = e.message; }
+                    }
+                }
 
                 loader.remove();
 
-                let responseContent = '';
-                if (typeof reply === 'string') {
-                    responseContent = reply;
-                } else if (reply && reply.message && reply.message.content) {
-                    responseContent = reply.message.content;
-                } else if (reply && reply.text) {
-                    responseContent = reply.text;
+                if (responseContent) {
+                    await appendMessage(responseContent.trim(), 'system', false);
                 } else {
-                    responseContent = String(reply);
+                    await appendMessage('All free AI endpoints are currently rate-limited. Please wait 1–2 minutes and try again.', 'system');
                 }
-
-                await appendMessage(responseContent.trim(), 'system', false);
 
             } catch (error) {
                 loader.remove();
                 console.error(error);
-                await appendMessage("Please sign in to Puter when the popup appears (it's free), then try again.", 'system');
+                await appendMessage("Error: Could not reach the AI service. Check your internet connection and try again.", 'system');
             } finally {
                 isSending = false;
                 sendTrigger.disabled = false;
