@@ -1,412 +1,570 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UltrasTec — Core Platform</title>
-<link rel="icon" type="image/png" href="images.png">
-  <style>
-    :root {
-      --bg: #050507;
-      --card-bg: #090a0f;
-      --card-border: rgba(255, 255, 255, 0.08);
-      --text-main: #f3f4f6;
-      --text-muted: #8e8e93;
-      --accent-cyan: #38bdf8;
-      --accent-green: #22c55e;
-      --mono: monospace;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UltrasTec AI</title>
+    <!-- Import Pixelify Sans pixel font -->
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f0f4f9;
+            --surface-color: #ffffff;
+            --text-main: #000000;
+            --text-secondary: #000000;
+            --border-color: #000000;
+            --accent-blue: #000000;
+        }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        /* Force pixel font and pure black color on everything */
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Pixelify Sans', sans-serif !important; 
+            color: #000000 !important;
+        }
+        
+        html, body { 
+            height: 100%; 
+            height: 100dvh; 
+            width: 100%; 
+            overflow: hidden; 
+        }
 
-    /* SIDEBAR */
-    sidebar {
-      width: 240px;
-      background: #000000;
-      border-right: 1px solid var(--card-border);
-      padding: 20px 16px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      flex-shrink: 0;
-    }
+        body { 
+            background: var(--bg-color); 
+            display: flex; 
+            flex-direction: column; 
+        }
 
-    .brand {
-      font-weight: 700;
-      font-size: 15px;
-      letter-spacing: 0.1em;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-    .brand-icon { width: 14px; height: 14px; border: 2px solid #fff; border-radius: 3px; }
+        /* Sidebar Drawer */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .sidebar-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
 
-    .nav-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-    .nav-btn {
-      width: 100%;
-      text-align: left;
-      background: transparent;
-      border: 1px solid transparent;
-      padding: 10px 12px;
-      border-radius: 6px;
-      color: var(--text-muted);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100%;
+            background: var(--surface-color);
+            z-index: 101;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            border-right: 2px solid #000;
+        }
+        .sidebar.open {
+            transform: translateX(300px);
+        }
 
-    .nav-item.active .nav-btn {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-    }
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
 
-    .sidebar-footer {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text-muted);
-      border-top: 1px solid var(--card-border);
-      padding-top: 16px;
-      line-height: 1.4;
-    }
+        .new-chat-btn {
+            background: #ffffff;
+            color: #000000;
+            border: 2px solid #000000;
+            padding: 10px 16px;
+            border-radius: 0px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .new-chat-btn:hover { background: #000000; color: #ffffff !important; }
+        .new-chat-btn:hover span { color: #ffffff !important; }
 
-    /* MAIN CONTENT */
-    main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .sidebar-section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
 
-    topbar {
-      height: 60px;
-      border-bottom: 1px solid var(--card-border);
-      display: flex;
-      align-items: center;
-      padding: 0 24px;
-      background: #050507;
-      flex-shrink: 0;
-    }
+        .recent-chats-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
 
-    .status-indicator { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); font-weight: 600; }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+        .recent-chat-item {
+            padding: 10px 12px;
+            border-radius: 0px;
+            font-size: 1rem;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .recent-chat-item:hover { background: #e0e0e0; }
+        .recent-chat-item.active { background: #d0d0d0; font-weight: bold; }
 
-    .content-area { padding: 40px; overflow-y: auto; flex: 1; }
+        /* Header */
+        header { 
+            padding: 12px 16px; 
+            background: var(--bg-color); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            flex-shrink: 0;
+        }
 
-    .page-view { display: none; }
-    .page-view.active { display: block; }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-    /* LANDING PAGE STYLING */
-    .hero-tag { font-family: var(--mono); font-size: 11px; color: var(--accent-cyan); letter-spacing: 0.15em; text-align: center; margin-bottom: 16px; }
-    .hero-heading { font-size: 42px; font-weight: 800; text-align: center; line-height: 1.15; margin-bottom: 16px; }
-    .hero-sub { color: var(--text-muted); font-size: 14px; text-align: center; max-width: 520px; margin: 0 auto 32px auto; line-height: 1.5; }
-    
-    .btn-explore {
-      display: block;
-      margin: 0 auto 48px auto;
-      background: #ffffff;
-      color: #000000;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-    }
+        .menu-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 8px;
+        }
+        .menu-btn:hover { background: rgba(0,0,0,0.05); }
 
-    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 1000px; margin: 0 auto; }
-    .feature-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 20px; }
-    .feature-card h3 { font-size: 14px; margin-bottom: 8px; }
-    .feature-card p { color: var(--text-muted); font-size: 12px; line-height: 1.5; }
+        .header-title { 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+        }
 
-    /* PRODUCT CATALOG 3x6 GRID */
-    .catalog-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--text-muted);
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--card-border);
-      margin-bottom: 24px;
-    }
+        /* Workspace & Chat */
+        .workspace { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 16px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            -webkit-overflow-scrolling: touch;
+        }
 
-    .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .welcome-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 16px;
+            max-width: 600px;
+            padding: 20px;
+        }
 
-    .product-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      aspect-ratio: 1 / 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 16px;
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.2s ease, border-color 0.2s ease;
-    }
+        .welcome-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: none !important;
+            -webkit-background-clip: initial !important;
+            -webkit-text-fill-color: #000000 !important;
+            line-height: 1.4;
+        }
 
-    .product-card:hover {
-      border-color: rgba(56, 189, 248, 0.4);
-      transform: translateY(-2px);
-    }
+        .chat-container { width: 100%; max-width: 768px; display: flex; flex-direction: column; gap: 24px; padding-bottom: 20px; }
 
-    .product-card img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.35;
-      transition: opacity 0.2s ease;
-    }
+        .msg-row { display: flex; gap: 12px; width: 100%; opacity: 0; transform: translateY(10px); animation: fadeInUp 0.3s ease forwards; }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    .product-card:hover img {
-      opacity: 0.55;
-    }
+        .msg-row.user { justify-content: flex-end; }
+        .msg-bubble { padding: 12px 16px; border-radius: 0px; border: 2px solid #000; max-width: 85%; font-size: 1.05rem; line-height: 1.6; word-break: break-word; white-space: pre-wrap; background-color: #ffffff; }
+        .user .msg-bubble { background-color: #ffffff; border-color: #000; }
+        .system .msg-bubble { background-color: transparent; border: none; width: 100%; padding: 0; }
 
-    .card-info { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-    .card-id { font-family: var(--mono); font-size: 10px; color: var(--accent-cyan); }
-    .card-title { font-size: 13px; font-weight: 600; color: #fff; }
-    .card-price { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+        .msg-bubble img {
+            max-width: 100%;
+            border-radius: 0px;
+            margin-top: 10px;
+            display: block;
+        }
 
-    /* MODAL OVERLAY */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(8px);
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-    }
+        .msg-bubble video {
+            max-width: 100%;
+            border: 2px solid #000;
+            border-radius: 0px;
+            margin-top: 10px;
+            display: block;
+        }
 
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+        .gemini-loader {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: none !important;
+            -webkit-background-clip: initial !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
 
-    .modal-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      width: 90%;
-      max-width: 480px;
-      padding: 24px;
-      position: relative;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-    }
+        /* Input Box */
+        .input-wrapper { 
+            padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); 
+            width: 100%; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: var(--bg-color); 
+            flex-shrink: 0;
+        }
 
-    .modal-close {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 18px;
-      cursor: pointer;
-    }
+        .pill-container { 
+            background: var(--surface-color); 
+            border-radius: 0px; 
+            padding: 8px 12px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            border: 2px solid #000000;
+        }
 
-    .modal-close:hover { color: #fff; }
+        .pill-container input[type="text"] { 
+            flex: 1; 
+            border: none; 
+            outline: none; 
+            font-size: 1rem; 
+            background: transparent; 
+            min-width: 0;
+            padding: 4px 0;
+        }
+        .pill-container input::placeholder { color: #000000; opacity: 0.6; }
 
-    .modal-id { font-family: var(--mono); font-size: 11px; color: var(--accent-cyan); margin-bottom: 8px; }
-    .modal-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-    .modal-price { font-family: var(--mono); font-size: 14px; color: var(--accent-green); margin-bottom: 16px; }
-    .modal-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; border-top: 1px solid var(--card-border); padding-top: 16px; }
+        .action-btn, .send-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
 
-    /* TERMS PAGE */
-    .terms-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 24px; font-size: 13px; color: var(--text-muted); line-height: 1.7; }
-    .terms-box h3 { color: #fff; font-size: 15px; margin: 16px 0 6px 0; }
-    .terms-box h3:first-child { margin-top: 0; }
-  </style>
+        .action-btn {
+            font-size: 1.2rem;
+            padding: 8px;
+        }
+        .action-btn:hover { background: rgba(0,0,0,0.05); }
 
+        .action-btn.listening {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .send-btn { 
+            background: #000000; 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 0px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff !important; 
+        }
+        .send-btn svg { stroke: #ffffff !important; }
+        .send-btn:active { background: #444; }
+    </style>
 </head>
 <body>
 
-  <sidebar>
-    <div>
-      <div class="brand"><div class="brand-icon"></div> ULTRASTEC</div>
-      <ul class="nav-list">
-        <li class="nav-item active" id="nav-landing">
-          <button class="nav-btn" onclick="switchTab('landing')">🏠 Landing Page</button>
-        </li>
-        <li class="nav-item" id="nav-catalog">
-          <button class="nav-btn" onclick="switchTab('catalog')">🌐 Product Catalog</button>
-        </li>
-        <li class="nav-item" id="nav-terms">
-          <button class="nav-btn" onclick="switchTab('terms')">📜 Terms & Conditions</button>
-        </li>
-      </ul>
-    </div>
-    <div class="sidebar-footer">
-      NODE: UT-PUBLIC-01<br>CORE PLATFORM V2.4
-    </div>
-  </sidebar>
-
-  <main>
-    <topbar>
-      <div class="status-indicator">
-        <span class="dot"></span>
-        <span>SYSTEM STATUS: ONLINE</span>
-      </div>
-    </topbar>
-
-    <div class="content-area">
-      
-      <!-- LANDING PAGE -->
-      <div class="page-view active" id="view-landing">
-        <div class="hero-tag">AUTONOMOUS FIELD SYSTEMS — 01</div>
-        <h1 class="hero-heading">Robots that move<br>the world forward.</h1>
-        <p class="hero-sub">UltrasTec designs autonomous machines for field tasks requiring sub-millisecond precision.</p>
-        <button class="btn-explore" onclick="switchTab('catalog')">Explore Product Catalog →</button>
-
-        <div class="feature-grid">
-          <div class="feature-card">
-            <h3>Adaptive Perception</h3>
-            <p>Multi-modal sensor arrays for real-time terrain navigation.</p>
-          </div>
-          <div class="feature-card">
-            <h3>Deterministic Kinematics</h3>
-            <p>High-precision actuators engineered for heavy payloads.</p>
-          </div>
-          <div class="feature-card">
-            <h3>Edge Autonomy</h3>
-            <p>Onboard decision compute that operates seamlessly offline.</p>
-          </div>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="menu-btn" id="sidebar-close">☰</button>
+            <div class="header-title" style="font-size: 1rem;">UltrasTec</div>
         </div>
-      </div>
+        <button class="new-chat-btn" id="new-chat-btn">
+            <span>+</span> New chat
+        </button>
+        <div class="sidebar-section-title">Recent</div>
+        <div class="recent-chats-list" id="recent-chats-list"></div>
+    </aside>
 
-      <!-- PRODUCT CATALOG -->
-      <div class="page-view" id="view-catalog">
-        <div class="hero-tag">AUTONOMOUS FIELD SYSTEMS — 01</div>
-        <h1 class="hero-heading" style="margin-bottom: 12px;">Systems for every frontier.</h1>
-        <p class="hero-sub">A complete range of autonomous platforms re-engineered for precision, endurance, and a changing physical world.</p>
-
-        <div class="catalog-bar">
-          <span>ALL SYSTEMS</span>
-          <span id="product-count-label">18 PRODUCTS</span>
+    <header>
+        <div class="header-left">
+            <button class="menu-btn" id="menu-trigger" title="Main menu">☰</button>
+            <div class="header-title">UltrasTec</div>
         </div>
+    </header>
 
-        <div class="product-grid" id="product-grid">
-          <!-- Dynamic 3x6 grid populated via LocalStorage -->
+    <main class="workspace" id="workspace">
+        <div class="welcome-container" id="welcome-container">
+            <div class="welcome-title">Hi, what's on your mind?</div>
         </div>
-      </div>
+        <div class="chat-container" id="chat-container"></div>
+    </main>
 
-      <!-- TERMS & CONDITIONS -->
-      <div class="page-view" id="view-terms">
-        <h1 style="font-size: 24px; margin-bottom: 8px;">Terms & Conditions</h1>
-        <div class="hero-tag" style="text-align: left; margin-bottom: 24px;">DEPLOYMENT COMPLIANCE & GOVERNANCE</div>
-
-        <div class="terms-box">
-          <h3>01. Acceptance of Operations</h3>
-          <p>By accessing or issuing commands through the platform, you agree to adhere to all safety protocols and automated equipment compliance standards.</p>
-
-          <h3>02. Telemetry Channels</h3>
-          <p>All telemetry feedback logs are routed through secure channels. System state synchronizes directly across local node deployments.</p>
-
-          <h3>03. Software Modifications</h3>
-          <p>Tampering with remote command parameters or local storage registries (`ultrastec_fleet_data`) invalidates hardware compliance support.</p>
+    <footer class="input-wrapper">
+        <div class="pill-container">
+            <input type="file" id="file-input" accept="image/*" style="display: none;">
+            <button class="action-btn" id="add-file-btn" title="Add file">+</button>
+            <input type="text" id="cmd-input" placeholder="Ask UltrasTec..." autocomplete="off">
+            <button class="action-btn" id="mic-btn" title="Use microphone">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                </svg>
+            </button>
+            <button class="send-btn" id="send-trigger" type="button" title="Send">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="19" x2="12" y2="5"></line>
+                    <polyline points="5 12 12 5 19 12"></polyline>
+                </svg>
+            </button>
         </div>
-      </div>
+    </footer>
 
-    </div>
-  </main>
+    <script>
+        let chats = []; // Array of chat objects: { id, title, messages }
+        let currentChatId = null;
 
-  <!-- PRODUCT DETAILS MODAL -->
-  <div class="modal-overlay" id="product-modal" onclick="closeModal(event)">
-    <div class="modal-card" onclick="event.stopPropagation()">
-      <button class="modal-close" onclick="closeModal()">✕</button>
-      <div class="modal-id" id="modal-id">SYS-00</div>
-      <div class="modal-title" id="modal-title">System Unit</div>
-      <div class="modal-price" id="modal-price">$0 USD</div>
-      <div class="modal-desc" id="modal-desc">Not configured</div>
-    </div>
-  </div>
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        const menuTrigger = document.getElementById('menu-trigger');
+        const sidebarClose = document.getElementById('sidebar-close');
+        const newChatBtn = document.getElementById('new-chat-btn');
+        const recentChatsList = document.getElementById('recent-chats-list');
+        const welcomeContainer = document.getElementById('welcome-container');
+        const chatContainer = document.getElementById('chat-container');
+        const cmdInput = document.getElementById('cmd-input');
+        const sendTrigger = document.getElementById('send-trigger');
+        const micBtn = document.getElementById('mic-btn');
+        const fileInput = document.getElementById('file-input');
+        const addFileBtn = document.getElementById('add-file-btn');
 
-  <script>
-    const STORAGE_KEY = 'ultrastec_fleet_data';
-
-    function switchTab(tab) {
-      document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
-      document.getElementById(`view-${tab}`).classList.add('active');
-      document.getElementById(`nav-${tab}`).classList.add('active');
-    }
-
-    function getProducts() {
-      const data = localStorage.getItem(STORAGE_KEY);
-      return data ? JSON.parse(data) : [];
-    }
-
-    function openModal(prod, index) {
-      document.getElementById('modal-id').innerText = prod ? (prod.id || `SYS-0${index + 1}`) : `SYS-0${index + 1}`;
-      document.getElementById('modal-title').innerText = prod ? (prod.name || 'Custom Unit') : 'Empty Slot';
-      document.getElementById('modal-price').innerText = prod ? (prod.price || 'Contact Sales') : 'N/A';
-      document.getElementById('modal-desc').innerText = prod ? (prod.description || prod.desc || 'Not configured') : 'Not configured';
-      
-      document.getElementById('product-modal').classList.add('active');
-    }
-
-    function closeModal(e) {
-      document.getElementById('product-modal').classList.remove('active');
-    }
-
-    function renderCatalog() {
-      const storedProducts = getProducts();
-      const grid = document.getElementById('product-grid');
-      const countLabel = document.getElementById('product-count-label');
-      
-      const totalCards = 18;
-      if (countLabel) countLabel.innerText = `${totalCards} PRODUCTS`;
-
-      let html = '';
-      for (let i = 0; i < totalCards; i++) {
-        const prod = storedProducts[i];
-
-        if (prod) {
-          html += `
-            <div class="product-card" onclick='openModal(${JSON.stringify(prod).replace(/'/g, "&apos;")}, ${i})'>
-              <img src="${prod.img}" alt="${prod.name}" onerror="this.style.display='none'">
-              <div class="card-info">
-                <span class="card-id">${prod.id || `SYS-0${i + 1}`}</span>
-                <div>
-                  <div class="card-title">${prod.name}</div>
-                  <div class="card-price">${prod.price}</div>
-                </div>
-              </div>
-            </div>
-          `;
-        } else {
-          html += `
-            <div class="product-card" onclick='openModal(null, ${i})'>
-              <div class="card-info">
-                <span class="card-id">SYS-0${i + 1}</span>
-                <div>
-                  <div class="card-title" style="opacity: 0.3;">Empty Slot</div>
-                </div>
-              </div>
-            </div>
-          `;
+        function toggleSidebar(open) {
+            if (open) {
+                sidebar.classList.add('open');
+                sidebarOverlay.classList.add('open');
+            } else {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('open');
+            }
         }
-      }
 
-      grid.innerHTML = html;
-    }
+        menuTrigger.addEventListener('click', () => toggleSidebar(true));
+        sidebarClose.addEventListener('click', () => toggleSidebar(false));
+        sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
 
-    window.addEventListener('storage', (e) => {
-      if (e.key === STORAGE_KEY) renderCatalog();
-    });
+        newChatBtn.addEventListener('click', () => {
+            currentChatId = null;
+            chatContainer.innerHTML = '';
+            welcomeContainer.style.display = 'flex';
+            renderSidebar();
+            toggleSidebar(false);
+        });
 
-    renderCatalog();
-  </script>
+        addFileBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(uploadEvent) {
+                    appendMessage(`<img src="${uploadEvent.target.result}" alt="Imported Image" />`, 'user', true);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function renderSidebar() {
+            recentChatsList.innerHTML = '';
+            chats.forEach(chat => {
+                const item = document.createElement('div');
+                item.className = `recent-chat-item ${chat.id === currentChatId ? 'active' : ''}`;
+                item.innerText = chat.title;
+                item.addEventListener('click', () => {
+                    currentChatId = chat.id;
+                    renderSidebar();
+                    renderActiveChat();
+                    toggleSidebar(false);
+                });
+                recentChatsList.appendChild(item);
+            });
+        }
+
+        function renderActiveChat() {
+            chatContainer.innerHTML = '';
+            const activeChat = chats.find(c => c.id === currentChatId);
+            if (!activeChat || activeChat.messages.length === 0) {
+                welcomeContainer.style.display = 'flex';
+                return;
+            }
+            welcomeContainer.style.display = 'none';
+            activeChat.messages.forEach(msg => {
+                appendMessageDOM(msg.text, msg.sender, msg.isHtml);
+            });
+        }
+
+        function appendMessageDOM(text, sender, isHtml = false) {
+            welcomeContainer.style.display = 'none';
+            const row = document.createElement('div');
+            row.className = `msg-row ${sender}`;
+            const bubble = document.createElement('div');
+            bubble.className = 'msg-bubble';
+
+            if (isHtml) {
+                bubble.innerHTML = text;
+            } else {
+                bubble.innerText = text;
+            }
+
+            row.appendChild(bubble);
+            chatContainer.appendChild(row);
+            const workspace = document.getElementById('workspace');
+            workspace.scrollTop = workspace.scrollHeight;
+            return bubble;
+        }
+
+        async function appendMessage(text, sender, isHtml = false) {
+            if (!currentChatId) {
+                const newChat = {
+                    id: Date.now(),
+                    title: text.length > 25 ? text.substring(0, 25) + '...' : text,
+                    messages: []
+                };
+                chats.unshift(newChat);
+                currentChatId = newChat.id;
+                renderSidebar();
+            }
+
+            const activeChat = chats.find(c => c.id === currentChatId);
+            if (activeChat) {
+                activeChat.messages.push({ text, sender, isHtml });
+                // If it's the first message update title if needed
+                if (activeChat.messages.length === 1 && sender === 'user') {
+                    activeChat.title = text.length > 25 ? text.substring(0, 25) + '...' : text;
+                    renderSidebar();
+                }
+            }
+
+            return appendMessageDOM(text, sender, isHtml);
+        }
+
+        sendTrigger.addEventListener('click', handleSend);
+        cmdInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            micBtn.addEventListener('click', () => {
+                try {
+                    recognition.start();
+                } catch (e) {}
+            });
+
+            recognition.onstart = () => {
+                micBtn.classList.add('listening');
+                cmdInput.placeholder = "Listening...";
+            };
+
+            recognition.onresult = (event) => {
+                const speechToText = event.results[0][0].transcript;
+                cmdInput.value = speechToText;
+            };
+
+            recognition.onerror = () => {
+                micBtn.classList.remove('listening');
+                cmdInput.placeholder = "Ask UltrasTec...";
+            };
+
+            recognition.onend = () => {
+                micBtn.classList.remove('listening');
+                cmdInput.placeholder = "Ask UltrasTec...";
+            };
+        } else {
+            micBtn.style.display = 'none';
+        }
+
+        async function handleSend() {
+            const text = cmdInput.value.trim();
+            if (!text) return;
+
+            await appendMessage(text, 'user');
+            cmdInput.value = '';
+
+            const loader = await appendMessage('<span class="gemini-loader">☁️ UltrasTec is thinking...</span>', 'system', true);
+            
+            // Remove loader message immediately from the session's saved history array so it doesn't get duplicated on re-render
+            const activeChat = chats.find(c => c.id === currentChatId);
+            if (activeChat && activeChat.messages.length > 0) {
+                activeChat.messages.pop(); 
+            }
+
+            try {
+                // Free public AI via LLM7 (no real API key needed – uses "unused")
+                // OpenAI-compatible, higher limits than Pollinations free tier
+                const response = await fetch('https://api.llm7.io/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer unused'
+                    },
+                    body: JSON.stringify({
+                        model: 'DeepSeek-V4-Flash-0731',
+                        messages: [
+                            { role: 'system', content: 'You are UltrasTec, a helpful, friendly and concise AI assistant. Answer clearly.' },
+                            { role: 'user', content: text }
+                        ],
+                        max_tokens: 1024,
+                        temperature: 0.7
+                    })
+                });
+
+                const data = await response.json();
+                loader.remove();
+
+                if (!response.ok) {
+                    const errMsg = data?.error?.message || 'Unknown error from AI service';
+                    await appendMessage('AI error: ' + errMsg, 'system');
+                    return;
+                }
+
+                const responseContent = data.choices?.[0]?.message?.content || 'No response received.';
+                await appendMessage(responseContent.trim(), 'system', false);
+
+            } catch (error) {
+                loader.remove();
+                console.error(error);
+                await appendMessage("Error: Could not reach the AI service. Check your internet connection and try again.", 'system');
+            }
+        }
+    </script>
 </body>
 </html>
