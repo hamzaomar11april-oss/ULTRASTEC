@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>UltrasTec AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Import Pixelify Sans pixel font -->
     <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
     <style>
@@ -456,6 +457,7 @@
                 chats.unshift(newChat);
                 currentChatId = newChat.id;
                 renderSidebar();
+                saveChatToCloud(newChat);
             }
 
             const activeChat = chats.find(c => c.id === currentChatId);
@@ -466,6 +468,7 @@
                     activeChat.title = text.length > 25 ? text.substring(0, 25) + '...' : text;
                     renderSidebar();
                 }
+                saveChatToCloud(activeChat);
             }
 
             return appendMessageDOM(text, sender, isHtml);
@@ -512,6 +515,71 @@
             micBtn.style.display = 'none';
         }
 
+
+        // ===== Supabase chat saving (safe) =====
+        let supabaseClient = null;
+        try {
+            if (window.supabase) {
+                supabaseClient = window.supabase.createClient(
+                    'https://bzhqvqngqzskguweyxwh.supabase.co',
+                    'sb_publishable_r73COh8lzDtnG5jxhRLvUg_lJK6jVV7'
+                );
+                console.log('Supabase client created');
+            } else {
+                console.warn('Supabase library not loaded');
+            }
+        } catch (e) {
+            console.error('Supabase init error', e);
+        }
+
+        async function loadChatsFromCloud() {
+            if (!supabaseClient) {
+                console.warn('No supabase client for load');
+                return;
+            }
+            try {
+                const { data, error } = await supabaseClient.from('chats').select('*').order('created_at', { ascending: false });
+                if (error) {
+                    console.error('Load error:', error.message || error);
+                    return;
+                }
+                if (data && data.length) {
+                    chats = data.map(r => ({ id: r.id, title: r.title, messages: r.messages || [] }));
+                    renderSidebar();
+                    console.log('Loaded', chats.length, 'chats');
+                } else {
+                    console.log('No chats found in database');
+                }
+            } catch (e) {
+                console.error('Load exception', e);
+            }
+        }
+
+        async function saveChatToCloud(chat) {
+            if (!supabaseClient || !chat) {
+                console.warn('Cannot save - no client or chat');
+                return;
+            }
+            try {
+                const { data, error } = await supabaseClient.from('chats').upsert({
+                    id: chat.id,
+                    title: chat.title,
+                    messages: chat.messages
+                }).select();
+                if (error) {
+                    console.error('Save error:', error.message || error);
+                } else {
+                    console.log('Chat saved', chat.id);
+                }
+            } catch (e) {
+                console.error('Save exception', e);
+            }
+        }
+
+        // Load chats after everything is ready
+        setTimeout(loadChatsFromCloud, 500);
+        // ===== end Supabase =====
+
         async function handleSend() {
             const text = cmdInput.value.trim();
             if (!text) return;
@@ -528,41 +596,115 @@
             }
 
             try {
-                // Free public AI via LLM7 (no real API key needed – uses "unused")
-                // OpenAI-compatible, higher limits than Pollinations free tier
-                const response = await fetch('https://api.llm7.io/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer unused'
-                    },
-                    body: JSON.stringify({
-                        model: 'DeepSeek-V4-Flash-0731',
-                        messages: [
-                            { role: 'system', content: 'You are UltrasTec, a helpful, friendly and concise AI assistant. Answer clearly.' },
-                            { role: 'user', content: text }
-                        ],
-                        max_tokens: 1024,
-                        temperature: 0.7
-                    })
-                });
+                // Long multi-turn chat + resilient free AI
+                const systemPrompt = 'You are UltrasTec, a helpful, friendly AI assistant. Give clear, complete answers. You can hold long conversations and remember what was said earlier.';
 
-                const data = await response.json();
-                loader.remove();
-
-                if (!response.ok) {
-                    const errMsg = data?.error?.message || 'Unknown error from AI service';
-                    await appendMessage('AI error: ' + errMsg, 'system');
-                    return;
+                // Build conversation history for long chats (last 12 messages)
+                const active = chats.find(c => c.id === currentChatId);
+                const history = [];
+                history.push({ role: 'system', content: systemPrompt });
+                if (active && active.messages && active.messages.length) {
+                    const recent = active.messages.filter(m => !m.isHtml).slice(-12);
+                    for (const m of recent) {
+                        const role = m.sender === 'user' ? 'user' : 'assistant';
+                        const content = String(m.text || '').slice(0, 1500);
+                        if (content) history.push({ role, content });
+                    }
+                }
+                // Ensure the latest user message is included
+                if (!history.length || history[history.length - 1].content !== text) {
+                    history.push({ role: 'user', content: text });
                 }
 
-                const responseContent = data.choices?.[0]?.message?.content || 'No response received.';
-                await appendMessage(responseContent.trim(), 'system', false);
+                const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+                const tryLLM7 = async (model) => {
+                    const r = await fetch('https://api.llm7.io/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer unused'
+                        },
+                        body: JSON.stringify({
+                            model,
+                            messages: history,
+                            max_tokens: 1200,
+                            temperature: 0.7
+                        })
+                    });
+                    const d = await r.json();
+                    if (r.ok && d.choices?.[0]?.message?.content) return d.choices[0].message.content.trim();
+                    throw new Error((d?.error?.message) || model);
+                };
+
+                const tryKilo = async () => {
+                    const r = await fetch('https://api.kilo.ai/api/gateway/chat/completions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            model: 'kilo-auto/free',
+                            messages: history,
+                            max_tokens: 1200
+                        })
+                    });
+                    const d = await r.json();
+                    if (r.ok && d.choices?.[0]?.message?.content) return d.choices[0].message.content.trim();
+                    throw new Error('kilo');
+                };
+
+                const tryPollinations = async () => {
+                    // Pollinations is single-turn; include short context in the prompt
+                    let prompt = text;
+                    if (active && active.messages && active.messages.length > 1) {
+                        const prev = active.messages.filter(m => !m.isHtml).slice(-4)
+                            .map(m => (m.sender === 'user' ? 'User: ' : 'AI: ') + String(m.text).slice(0, 200))
+                            .join('\n');
+                        prompt = prev + '\nUser: ' + text + '\nAI:';
+                    }
+                    const url = 'https://text.pollinations.ai/' + encodeURIComponent(prompt) +
+                        '?system=' + encodeURIComponent(systemPrompt) + '&model=openai&seed=' + Date.now();
+                    const r = await fetch(url);
+                    const t = await r.text();
+                    if (r.ok && t && !/limit|quota|payment|rate|busy/i.test(t)) return t.trim();
+                    throw new Error('pollinations');
+                };
+
+                // Try with retries for long reliable chats
+                let responseContent = null;
+                const attempts = [
+                    () => tryLLM7('GLM-5.3-Flash'),
+                    () => tryLLM7('gpt-oss:20b'),
+                    () => tryKilo(),
+                    () => tryPollinations(),
+                    () => tryLLM7('mistral-Nemo-Instruct-2407'),
+                    () => tryLLM7('DeepSeek-V4-Flash-0731')
+                ];
+
+                for (let i = 0; i < attempts.length; i++) {
+                    try {
+                        responseContent = await Promise.race([
+                            attempts[i](),
+                            sleep(12000).then(() => { throw new Error('timeout'); })
+                        ]);
+                        if (responseContent) break;
+                    } catch (e) {
+                        console.warn('Attempt', i, 'failed', e.message || e);
+                        if (i < attempts.length - 1) await sleep(400);
+                    }
+                }
+
+                loader.remove();
+
+                if (responseContent) {
+                    await appendMessage(responseContent, 'system', false);
+                } else {
+                    await appendMessage('All free AI servers are busy. Wait 20–30 seconds and try again for long chats.', 'system');
+                }
 
             } catch (error) {
                 loader.remove();
                 console.error(error);
-                await appendMessage("Error: Could not reach the AI service. Check your internet connection and try again.", 'system');
+                await appendMessage('AI is busy right now. Please wait half a minute and try again.', 'system');
             }
         }
     </script>
