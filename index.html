@@ -516,29 +516,50 @@
         }
 
 
-        // ===== Supabase chat saving (safe) =====
+        // ===== Supabase: anonymous sign-in + private chats (no personal info) =====
         let supabaseClient = null;
+        let currentUserId = null;
+
         try {
             if (window.supabase) {
                 supabaseClient = window.supabase.createClient(
                     'https://bzhqvqngqzskguweyxwh.supabase.co',
                     'sb_publishable_r73COh8lzDtnG5jxhRLvUg_lJK6jVV7'
                 );
-                console.log('Supabase client created');
-            } else {
-                console.warn('Supabase library not loaded');
             }
         } catch (e) {
             console.error('Supabase init error', e);
         }
 
-        async function loadChatsFromCloud() {
-            if (!supabaseClient) {
-                console.warn('No supabase client for load');
-                return;
-            }
+        async function ensureAnonymousUser() {
+            if (!supabaseClient) return null;
             try {
-                const { data, error } = await supabaseClient.from('chats').select('*').order('created_at', { ascending: false });
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session?.user?.id) {
+                    currentUserId = session.user.id;
+                    return currentUserId;
+                }
+                // No personal info – anonymous only
+                const { data, error } = await supabaseClient.auth.signInAnonymously();
+                if (error) throw error;
+                currentUserId = data?.user?.id || null;
+                return currentUserId;
+            } catch (e) {
+                console.error('Anonymous sign-in failed', e);
+                return null;
+            }
+        }
+
+        async function loadChatsFromCloud() {
+            if (!supabaseClient) return;
+            const uid = await ensureAnonymousUser();
+            if (!uid) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('chats')
+                    .select('*')
+                    .eq('user_id', uid)
+                    .order('created_at', { ascending: false });
                 if (error) {
                     console.error('Load error:', error.message || error);
                     return;
@@ -546,9 +567,6 @@
                 if (data && data.length) {
                     chats = data.map(r => ({ id: r.id, title: r.title, messages: r.messages || [] }));
                     renderSidebar();
-                    console.log('Loaded', chats.length, 'chats');
-                } else {
-                    console.log('No chats found in database');
                 }
             } catch (e) {
                 console.error('Load exception', e);
@@ -556,28 +574,24 @@
         }
 
         async function saveChatToCloud(chat) {
-            if (!supabaseClient || !chat) {
-                console.warn('Cannot save - no client or chat');
-                return;
-            }
+            if (!supabaseClient || !chat) return;
+            const uid = currentUserId || await ensureAnonymousUser();
+            if (!uid) return;
             try {
-                const { data, error } = await supabaseClient.from('chats').upsert({
+                const { error } = await supabaseClient.from('chats').upsert({
                     id: chat.id,
                     title: chat.title,
-                    messages: chat.messages
-                }).select();
-                if (error) {
-                    console.error('Save error:', error.message || error);
-                } else {
-                    console.log('Chat saved', chat.id);
-                }
+                    messages: chat.messages,
+                    user_id: uid
+                });
+                if (error) console.error('Save error:', error.message || error);
             } catch (e) {
                 console.error('Save exception', e);
             }
         }
 
-        // Load chats after everything is ready
-        setTimeout(loadChatsFromCloud, 500);
+        // Sign in anonymously then load only this user's chats
+        setTimeout(loadChatsFromCloud, 400);
         // ===== end Supabase =====
 
         async function handleSend() {
