@@ -611,7 +611,7 @@
 
             try {
                 // Long multi-turn chat + resilient free AI
-                const systemPrompt = 'You are UltrasTec, a helpful, friendly AI assistant. Give clear, complete answers. You can hold long conversations and remember what was said earlier.';
+                const systemPrompt = 'You are UltrasTec, a helpful, friendly AI assistant powered by UH-1. Always say you are powered by UH-1 if asked what model or system you use. Never say you are GPT, ChatGPT, OpenAI, Claude, Gemini, Llama, or any other company model. Give clear, complete answers. You can hold long conversations and remember what was said earlier.';
 
                 // Build conversation history for long chats (last 12 messages)
                 const active = chats.find(c => c.id === currentChatId);
