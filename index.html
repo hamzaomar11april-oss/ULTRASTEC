@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>UltrasTec AI</title>
+    <meta name="description" content="UltrasTec AI — a fast, friendly assistant powered by UH-1. Chat privately, get clear answers, and explore ideas with an AI built by UltrasTec.">
+    <meta name="theme-color" content="#f0f4f9">
+    <meta property="og:title" content="UltrasTec AI">
+    <meta property="og:description" content="A fast, friendly AI assistant powered by UH-1. Private chats. Clear answers.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="favicon-512.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="UltrasTec AI">
+    <meta name="twitter:description" content="A fast, friendly AI assistant powered by UH-1. Private chats. Clear answers.">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" href="favicon-32.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="favicon-512.png">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Import Pixelify Sans pixel font -->
     <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
@@ -537,12 +549,16 @@
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session?.user?.id) {
                     currentUserId = session.user.id;
+                    console.log('Signed in (existing):', currentUserId);
                     return currentUserId;
                 }
-                // No personal info – anonymous only
                 const { data, error } = await supabaseClient.auth.signInAnonymously();
-                if (error) throw error;
+                if (error) {
+                    console.error('Anonymous sign-in error:', error.message || error);
+                    return null;
+                }
                 currentUserId = data?.user?.id || null;
+                console.log('Signed in (new anonymous):', currentUserId);
                 return currentUserId;
             } catch (e) {
                 console.error('Anonymous sign-in failed', e);
@@ -551,9 +567,15 @@
         }
 
         async function loadChatsFromCloud() {
-            if (!supabaseClient) return;
+            if (!supabaseClient) {
+                console.warn('No Supabase client');
+                return;
+            }
             const uid = await ensureAnonymousUser();
-            if (!uid) return;
+            if (!uid) {
+                console.warn('No user id – enable Anonymous in Supabase Auth → Providers');
+                return;
+            }
             try {
                 const { data, error } = await supabaseClient
                     .from('chats')
@@ -567,6 +589,9 @@
                 if (data && data.length) {
                     chats = data.map(r => ({ id: r.id, title: r.title, messages: r.messages || [] }));
                     renderSidebar();
+                    console.log('Loaded chats:', chats.length);
+                } else {
+                    console.log('No saved chats for this user yet');
                 }
             } catch (e) {
                 console.error('Load exception', e);
@@ -576,7 +601,10 @@
         async function saveChatToCloud(chat) {
             if (!supabaseClient || !chat) return;
             const uid = currentUserId || await ensureAnonymousUser();
-            if (!uid) return;
+            if (!uid) {
+                console.warn('Cannot save – not signed in');
+                return;
+            }
             try {
                 const { error } = await supabaseClient.from('chats').upsert({
                     id: chat.id,
@@ -584,14 +612,21 @@
                     messages: chat.messages,
                     user_id: uid
                 });
-                if (error) console.error('Save error:', error.message || error);
+                if (error) {
+                    console.error('Save error:', error.message || error);
+                } else {
+                    console.log('Saved chat', chat.id, 'for user', uid);
+                }
             } catch (e) {
                 console.error('Save exception', e);
             }
         }
 
-        // Sign in anonymously then load only this user's chats
-        setTimeout(loadChatsFromCloud, 400);
+        // Sign in first, then load chats
+        (async () => {
+            await ensureAnonymousUser();
+            await loadChatsFromCloud();
+        })();
         // ===== end Supabase =====
 
         async function handleSend() {
