@@ -578,9 +578,48 @@
         }
 
 
-        // ===== Supabase: anonymous sign-in + private chats (no personal info) =====
+        // ===== Per-device chat saving (works for everyone) =====
+        // 1) Always save on this device (localStorage) — reliable for all visitors
+        // 2) Also sync to Supabase when possible (same device id)
+
         let supabaseClient = null;
-        let currentUserId = null;
+        let deviceId = null;
+
+        function getDeviceId() {
+            try {
+                let id = localStorage.getItem('ultrastec_device_id');
+                if (!id) {
+                    id = (crypto.randomUUID && crypto.randomUUID()) ||
+                        ('dev-' + Date.now() + '-' + Math.random().toString(36).slice(2, 12));
+                    localStorage.setItem('ultrastec_device_id', id);
+                }
+                return id;
+            } catch (e) {
+                return 'fallback-' + Date.now();
+            }
+        }
+
+        function loadChatsFromDevice() {
+            try {
+                const raw = localStorage.getItem('ultrastec_chats_' + deviceId);
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed) && parsed.length) {
+                    chats = parsed;
+                    renderSidebar();
+                }
+            } catch (e) {
+                console.warn('Device load failed', e);
+            }
+        }
+
+        function saveChatsToDevice() {
+            try {
+                localStorage.setItem('ultrastec_chats_' + deviceId, JSON.stringify(chats));
+            } catch (e) {
+                console.warn('Device save failed', e);
+            }
+        }
 
         try {
             if (window.supabase) {
@@ -590,94 +629,57 @@
                 );
             }
         } catch (e) {
-            console.error('Supabase init error', e);
-        }
-
-        async function ensureAnonymousUser() {
-            if (!supabaseClient) return null;
-            try {
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                if (session?.user?.id) {
-                    currentUserId = session.user.id;
-                    console.log('Signed in (existing):', currentUserId);
-                    return currentUserId;
-                }
-                const { data, error } = await supabaseClient.auth.signInAnonymously();
-                if (error) {
-                    console.error('Anonymous sign-in error:', error.message || error);
-                    return null;
-                }
-                currentUserId = data?.user?.id || null;
-                console.log('Signed in (new anonymous):', currentUserId);
-                return currentUserId;
-            } catch (e) {
-                console.error('Anonymous sign-in failed', e);
-                return null;
-            }
+            console.warn('Supabase init error', e);
         }
 
         async function loadChatsFromCloud() {
-            if (!supabaseClient) {
-                console.warn('No Supabase client');
-                return;
-            }
-            const uid = await ensureAnonymousUser();
-            if (!uid) {
-                console.warn('No user id – enable Anonymous in Supabase Auth → Providers');
-                return;
-            }
+            if (!supabaseClient || !deviceId) return;
             try {
                 const { data, error } = await supabaseClient
                     .from('chats')
                     .select('*')
-                    .eq('user_id', uid)
+                    .eq('user_id', deviceId)
                     .order('created_at', { ascending: false });
                 if (error) {
-                    console.error('Load error:', error.message || error);
+                    console.warn('Cloud load:', error.message || error);
                     return;
                 }
                 if (data && data.length) {
-                    chats = data.map(r => ({ id: r.id, title: r.title, messages: r.messages || [] }));
-                    renderSidebar();
-                    console.log('Loaded chats:', chats.length);
-                } else {
-                    console.log('No saved chats for this user yet');
+                    // Prefer cloud if it has more / newer data
+                    const mapped = data.map(r => ({ id: r.id, title: r.title, messages: r.messages || [] }));
+                    if (mapped.length >= chats.length) {
+                        chats = mapped;
+                        renderSidebar();
+                        saveChatsToDevice();
+                    }
                 }
             } catch (e) {
-                console.error('Load exception', e);
+                console.warn('Cloud load exception', e);
             }
         }
 
         async function saveChatToCloud(chat) {
-            if (!supabaseClient || !chat) return;
-            const uid = currentUserId || await ensureAnonymousUser();
-            if (!uid) {
-                console.warn('Cannot save – not signed in');
-                return;
-            }
+            // Always save on device first (works for everyone)
+            saveChatsToDevice();
+            if (!supabaseClient || !chat || !deviceId) return;
             try {
                 const { error } = await supabaseClient.from('chats').upsert({
                     id: chat.id,
                     title: chat.title,
                     messages: chat.messages,
-                    user_id: uid
+                    user_id: deviceId
                 });
-                if (error) {
-                    console.error('Save error:', error.message || error);
-                } else {
-                    console.log('Saved chat', chat.id, 'for user', uid);
-                }
+                if (error) console.warn('Cloud save:', error.message || error);
             } catch (e) {
-                console.error('Save exception', e);
+                console.warn('Cloud save exception', e);
             }
         }
 
-        // Sign in first, then load chats
-        (async () => {
-            await ensureAnonymousUser();
-            await loadChatsFromCloud();
-        })();
-        // ===== end Supabase =====
+        // Init per-device identity + load
+        deviceId = getDeviceId();
+        loadChatsFromDevice();
+        loadChatsFromCloud();
+        // ===== end per-device saving =====
 
         async function handleSend() {
             const text = cmdInput.value.trim();
